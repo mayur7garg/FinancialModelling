@@ -1,0 +1,11 @@
+version: "3.9"
+name: "finance-modelling"
+services:
+  finance-modelling:
+    build: ./
+    image: finance-modelling:latest
+    volumes:
+      - .:/src
+    tty: true
+    command: /bin/bash
+    container_name: finance-modelling
