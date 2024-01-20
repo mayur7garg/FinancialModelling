@@ -1,3 +1,7 @@
 from pathlib import Path
 
 NSE_DATA_DIR = Path("..", "data", "NSE")
+print(f"{NSE_DATA_DIR = } | Valid: {NSE_DATA_DIR.exists() & NSE_DATA_DIR.is_dir()}")
+
+PROCESSED_DATA_DIR = Path("..", "data", "processed")
+print(f"{PROCESSED_DATA_DIR = } | Valid: {PROCESSED_DATA_DIR.exists() & PROCESSED_DATA_DIR.is_dir()}")
