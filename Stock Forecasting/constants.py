@@ -1,5 +1,7 @@
 from pathlib import Path
 
+RANDOM_STATE = 7
+
 NSE_DATA_DIR = Path("..", "data", "NSE")
 print(f"{NSE_DATA_DIR = } | Valid: {NSE_DATA_DIR.exists() & NSE_DATA_DIR.is_dir()}")
 
