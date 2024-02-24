@@ -1,6 +1,53 @@
 from pathlib import Path
+from datetime import datetime
 
 import pandas as pd
+
+import constants as cnst
+
+class StockData():
+    def __init__(
+        self,
+        stock_symbol: str
+    ) -> None:
+        self.stock_symbol: str = stock_symbol
+        self.processed: pd.DataFrame = pd.read_parquet(
+            cnst.PROCESSED_DATA_DIR.joinpath(
+                f'{stock_symbol}-processed.parquet'
+            )
+        )
+        self.standardized: pd.DataFrame = pd.read_parquet(
+            cnst.PROCESSED_DATA_DIR.joinpath(
+                f'{stock_symbol}-standardized.parquet'
+            )
+        )
+
+    def print_info(self) -> str:
+        info: str = f"Symbol: {self.stock_symbol}\n"
+        info += f"Total records: {self.processed.shape[0]}\n"
+        info += f"First record: {self.processed['Date'].min().date()}\n"
+        info += f"Last record: {self.processed['Date'].max().date()}"
+
+        return info
+    
+    def __repr__(self) -> str:
+        return self.print_info()
+    
+    def get_first_hit(
+        self,
+        target: float, 
+        metric = "Close"
+    ):
+        all_hits = self.processed[self.processed[metric] >= target]
+
+        if len(all_hits) > 0:
+            first_hit = all_hits["Date"].min()
+            print(f"Target: {target}")
+            print(f"First hit: {first_hit.date()} | {(datetime.today().date() - first_hit.date()).days} days ago")
+            print(f"'{metric}' at first hit: {all_hits[all_hits['Date'] == first_hit][metric].values[0]}")
+            print(f"Total hits: {len(all_hits)}")
+        else:
+            print(f"No matching record for target = {target} and metric = {metric}.")
 
 def get_all_stock_symbols(stock_data_dir: Path):
     return [
