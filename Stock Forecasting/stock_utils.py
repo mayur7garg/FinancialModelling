@@ -56,7 +56,8 @@ def get_all_stock_symbols(stock_data_dir: Path):
 
 def get_consolidated_stock_data(
     stock_symbol: str,
-    stock_data_dir: Path
+    stock_data_dir: Path,
+    eps_data_dir: Path
 ):
     hist_dfs = []
     file_pattern = f"*{stock_symbol}*.csv"
@@ -72,19 +73,56 @@ def get_consolidated_stock_data(
 
         for df in hist_dfs[1:]:
             hist_df = hist_df.merge(df, how = "outer")
+        
+        hist_df = hist_df.sort_values("Date").reset_index(drop = True)
+        eps_file = eps_data_dir.joinpath(f"{stock_symbol}.csv")
 
-        return hist_df.sort_values("Date").reset_index(drop = True)
+        if eps_file.exists():
+            eps_df = pd.read_csv(eps_file)
+
+            eps_df["FirstDateAfterFYReport"] = pd.to_datetime(
+                eps_df["FirstDateAfterFYReport"],
+                format = "%d-%m-%Y"
+            )
+
+            hist_df = pd.merge(
+                hist_df,
+                eps_df,
+                how = "left",
+                left_on = [hist_df['Date'].dt.strftime("%Y-%m")],
+                right_on = [eps_df['FirstDateAfterFYReport'].dt.strftime("%Y-%m")]
+            )
+
+            hist_df['EPS'] = hist_df['EPS'].ffill()
+            hist_df['EPS'] = hist_df['EPS'].fillna(
+                value = eps_df[
+                    eps_df["FirstDateAfterFYReport"] < hist_df["Date"].min()
+                ]["EPS"].iloc[-1]
+            )
+            hist_df["PE"] = (hist_df["close"] / hist_df["EPS"]).round(3)
+
+            hist_df = hist_df.drop(
+                axis = "columns", 
+                labels = ["key_0", "FirstDateAfterFYReport", "EPS"]
+            )
+
+        return hist_df
     else:
         return None
 
 def consolidate_all_stock_data(
-    stock_data_dir: Path
+    stock_data_dir: Path,
+    eps_data_dir: Path
 ):
     for stock_symbol in get_all_stock_symbols(stock_data_dir):
         stock_dir = stock_data_dir.joinpath(stock_symbol)
         file_count = len(list(stock_dir.glob('*.csv')))
         print(f"{stock_symbol} - {file_count} files")
-        stock_df = get_consolidated_stock_data(stock_symbol, stock_data_dir)
+        stock_df = get_consolidated_stock_data(
+            stock_symbol, 
+            stock_data_dir,
+            eps_data_dir
+        )
         
         if stock_df is not None:
             print(f"\t{stock_df.shape[0]} records")
