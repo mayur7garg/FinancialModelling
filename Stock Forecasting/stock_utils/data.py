@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pandas as pd
 
-import constants as cnst
+from .constants import PROCESSED_DATA_DIR
 
 class StockData():
     def __init__(
@@ -12,12 +12,12 @@ class StockData():
     ) -> None:
         self.stock_symbol: str = stock_symbol
         self.processed: pd.DataFrame = pd.read_parquet(
-            cnst.PROCESSED_DATA_DIR.joinpath(
+            PROCESSED_DATA_DIR.joinpath(
                 f'{stock_symbol}-processed.parquet'
             )
         )
         self.standardized: pd.DataFrame = pd.read_parquet(
-            cnst.PROCESSED_DATA_DIR.joinpath(
+            PROCESSED_DATA_DIR.joinpath(
                 f'{stock_symbol}-standardized.parquet'
             )
         )
