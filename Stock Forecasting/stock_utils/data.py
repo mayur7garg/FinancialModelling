@@ -65,7 +65,7 @@ def get_consolidated_stock_data(
     for f in stock_data_dir.joinpath(stock_symbol).glob(file_pattern):
         hist_df = pd.read_csv(f, thousands = ',')
         hist_df.columns = [c.strip() for c in hist_df.columns]
-        hist_df["Date"] = pd.to_datetime(hist_df["Date"])
+        hist_df["Date"] = pd.to_datetime(hist_df["Date"], format = r"%d-%b-%Y")
         hist_dfs.append(hist_df)
     
     if len(hist_dfs) > 0:
