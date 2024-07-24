@@ -21,8 +21,8 @@ def adam_momentum(
 
 def spearman_over_ma(
     data,
-    min_window: int = 3,
-    max_window: int = 15,
+    min_window: int = 1,
+    max_window: int = 10,
     short_window_default: float = 0.0
 ):
     spear_ma = []

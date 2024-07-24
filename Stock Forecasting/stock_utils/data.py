@@ -48,6 +48,19 @@ class StockData():
             print(f"Total hits: {len(all_hits)}")
         else:
             print(f"No matching record for target = {target} and metric = {metric}.")
+    
+    def get_pe_summary(
+        self,
+        windows: list[int]
+    ):
+        if "PE" in self.processed.columns:
+            print(f"Current PE: {self.processed['PE'].values[-1]:.3f}")
+            print(f"Median PE:\n\tOverall: {self.processed['PE'].median():.3f}")
+            
+            for window in windows:
+                print(f"\tLast {window} sessions: {self.processed['PE'].iloc[-window:].median():.3f}")
+        else:
+            print("PE data not available")
 
 def get_all_stock_symbols(stock_data_dir: Path):
     return [
