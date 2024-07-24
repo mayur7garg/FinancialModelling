@@ -87,7 +87,13 @@ def get_consolidated_stock_data(
         for df in hist_dfs[1:]:
             hist_df = hist_df.merge(df, how = "outer")
         
-        hist_df = hist_df.sort_values("Date").reset_index(drop = True)
+        hist_df = hist_df.sort_values(
+            "Date"
+        ).drop_duplicates(
+            keep = 'first'
+        ).reset_index(
+            drop = True
+        )
         eps_file = eps_data_dir.joinpath(f"{stock_symbol}.csv")
 
         if eps_file.exists():
