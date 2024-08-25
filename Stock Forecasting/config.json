@@ -1,5 +1,11 @@
 {
-    "NSE_DATA_DIR": "../data/NSE",
-    "EPS_DATA_DIR": "../data/Screener.in/EPS",
-    "PROCESSED_DATA_DIR": "../data/processed"
+    "nse_data_dir": "../data/NSE",
+    "eps_data_dir": "../data/Screener.in/EPS",
+    "processed_data_dir": "../data/processed",
+    "index_template": "templates/index_template.html",
+    "stock_report_template": "templates/stock_report_template.html",
+    "index_path": "../index.html",
+    "pages_out_dir": "../web/pages",
+    "images_out_dir": "../web/images",
+    "reload_data": true
 }
