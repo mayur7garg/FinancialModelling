@@ -7,5 +7,5 @@
     "index_path": "../index.html",
     "pages_out_dir": "../web/pages",
     "images_out_dir": "../web/images",
-    "reload_data": true
+    "reload_data": false
 }

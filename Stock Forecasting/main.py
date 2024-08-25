@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import templates
 from utility import Config
 from data import StockSummary, StockData
 
@@ -16,4 +17,7 @@ for symbol in STOCK_SYMBOLS:
         CONFIG.RELOAD_DATA
     )
     summaries.append(stock_data.summary)
-    print(stock_data.summary)
+    
+    templates.create_stock_report(CONFIG.STOCK_REPORT_TEMPLATE, CONFIG.PAGES_OUT_DIR, CONFIG.IMAGES_OUT_DIR, stock_data)
+
+templates.create_index(CONFIG.INDEX_TEMPLATE, CONFIG.INDEX_PATH, summaries)
