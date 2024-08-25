@@ -1,0 +1,5 @@
+{
+    "NSE_DATA_DIR": "../data/NSE",
+    "EPS_DATA_DIR": "../data/Screener.in/EPS",
+    "PROCESSED_DATA_DIR": "../data/processed"
+}
