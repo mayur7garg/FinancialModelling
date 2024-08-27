@@ -29,7 +29,6 @@ def create_index(
 def create_stock_report(
     template_path: Path,
     page_out_path: Path,
-    image_out_path: Path,
     stock_data: StockData
 ):
     with template_path.open('r', encoding = "utf-8") as f:

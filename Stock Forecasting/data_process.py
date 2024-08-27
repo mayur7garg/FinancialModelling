@@ -4,6 +4,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
 
 @dataclass
 class StockSummary:
@@ -19,9 +21,11 @@ class StockData:
         symbol: str,
         stock_data_dir: Path,
         eps_data_dir: Path,
+        image_out_path: Path,
         reload_data: bool = False
     ) -> None:
         self.symbol = symbol
+        self.image_out_path = image_out_path
         consolidated_data_path = stock_data_dir.joinpath(symbol, "consolidated.parquet")
 
         if reload_data or (not (consolidated_data_path.exists() and consolidated_data_path.is_file())):
@@ -147,3 +151,28 @@ class StockData:
             (max_streaks['IsGreen'] == self.last_candle) &
             (max_streaks['Streak'] > self.candle_streak)
         ].shape[0] / max_streaks[max_streaks['IsGreen'] == self.last_candle].shape[0]
+
+        self._save_streak_plots(max_streaks)
+    
+    def _save_streak_plots(self, max_streaks: pd.DataFrame):
+        with sns.axes_style('dark'):
+            plt.figure(figsize = (10, 5), dpi = 125)
+            sns.barplot(
+                max_streaks[max_streaks['IsGreen'] == 1]['Streak'].value_counts(normalize = True).sort_index(),
+                color = "mediumseagreen",
+                label = "Green candles"
+            )
+            sns.barplot(
+                max_streaks[max_streaks['IsGreen'] == 0]['Streak'].value_counts(normalize = True).mul(-1).sort_index(),
+                color = "indianred",
+                label = "Red candles"
+            )
+            plt.legend()
+            plt.xlabel("Streak length", fontsize = 12)
+            plt.ylabel("Percentage", fontsize = 12)
+            plt.title(f"{self.symbol} - Percentage of streak lengths by candle type", fontsize = 14)
+            plt.yticks(np.linspace(-1, 1, 9), labels = np.abs(np.linspace(-100, 100, 9, dtype = np.int8)))
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Streak_Length.png"), 
+                bbox_inches = "tight"
+            )

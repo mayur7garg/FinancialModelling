@@ -11,10 +11,15 @@
 
 <body>
     <h1>{symbol}</h1>
-    <div>
-        <p>Last candle: <span style="color:{last_candle_color}">{last_candle}</span></p>
-        <p>Current streak: {candle_streak}</p>
-        <p>Streak continutation probability: {streak_cont_prob}</p>
+    <div class="row">
+        <div class="col-md-3">
+            <p>Last candle: <span style="color:{last_candle_color}">{last_candle}</span></p>
+            <p>Current streak: {candle_streak}</p>
+            <p>Streak continutation probability: {streak_cont_prob}</p>
+        </div>
+        <div class="col-md-9">
+            <img src="../images/{symbol}_Pcnt_Streak_Length.png" height="400px">
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

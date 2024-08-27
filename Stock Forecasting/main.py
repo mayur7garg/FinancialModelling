@@ -14,11 +14,12 @@ for symbol in STOCK_SYMBOLS:
         symbol, 
         CONFIG.NSE_DATA_DIR, 
         CONFIG.EPS_DATA_DIR,
+        CONFIG.IMAGES_OUT_DIR,
         CONFIG.RELOAD_DATA
     )
     stock_data.create_features()
     summaries.append(stock_data.summary)
     
-    templates.create_stock_report(CONFIG.STOCK_REPORT_TEMPLATE, CONFIG.PAGES_OUT_DIR, CONFIG.IMAGES_OUT_DIR, stock_data)
+    templates.create_stock_report(CONFIG.STOCK_REPORT_TEMPLATE, CONFIG.PAGES_OUT_DIR, stock_data)
 
 templates.create_index(CONFIG.INDEX_TEMPLATE, CONFIG.INDEX_PATH, summaries)
