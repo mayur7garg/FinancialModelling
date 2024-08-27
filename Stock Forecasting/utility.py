@@ -31,17 +31,17 @@ class Config:
             f"{self.STOCK_REPORT_TEMPLATE = } | Valid: {self.STOCK_REPORT_TEMPLATE.exists() & self.STOCK_REPORT_TEMPLATE.is_file()}"
         )
 
-        self.INDEX_PATH = Path(conf_dict['index_path'])
+        self.INDEX_PATH = Path(conf_dict['index_path']).joinpath("index.html")
         print(
             f"{self.INDEX_PATH = } | Valid: {self.INDEX_PATH.exists() & self.INDEX_PATH.is_file()}"
         )
 
-        self.PAGES_OUT_DIR = Path(conf_dict['pages_out_dir'])
+        self.PAGES_OUT_DIR = Path(conf_dict['index_path']).joinpath("web", "pages")
         print(
             f"{self.PAGES_OUT_DIR = } | Valid: {self.PAGES_OUT_DIR.exists() & self.PAGES_OUT_DIR.is_dir()}"
         )
 
-        self.IMAGES_OUT_DIR = Path(conf_dict['images_out_dir'])
+        self.IMAGES_OUT_DIR = Path(conf_dict['index_path']).joinpath("web", "images")
         print(
             f"{self.IMAGES_OUT_DIR = } | Valid: {self.IMAGES_OUT_DIR.exists() & self.IMAGES_OUT_DIR.is_dir()}"
         )

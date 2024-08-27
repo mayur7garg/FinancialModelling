@@ -4,8 +4,6 @@
     "processed_data_dir": "../data/processed",
     "index_template": "templates/index_template.html",
     "stock_report_template": "templates/stock_report_template.html",
-    "index_path": "../index.html",
-    "pages_out_dir": "../web/pages",
-    "images_out_dir": "../web/images",
+    "index_path": "..",
     "reload_data": false
 }
