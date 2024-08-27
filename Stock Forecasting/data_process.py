@@ -2,6 +2,7 @@ from datetime import date
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 @dataclass
@@ -68,7 +69,16 @@ class StockData:
                 keep = 'first'
             ).reset_index(
                 drop = True
+            ).drop(
+                labels = "series",
+                axis = "columns"
             )
+
+            col_names = [
+                "Date", "Open", "High", "Low", "Prev Close", "LTP", "Close",
+                "VWAP", "52W H", "52W L", "Volume", "Value", "Num Trades"
+            ]
+
             eps_file = eps_data_dir.joinpath(f"{self.symbol}.csv")
 
             if eps_file.exists():
@@ -100,7 +110,40 @@ class StockData:
                     labels = ["key_0", "FirstDateAfterFYReport", "EPS"]
                 )
 
+                col_names.append("PE")
+            
+            hist_df.columns = col_names
+
             print(f"Loaded {hist_df.shape[0]} records from {len(files)} files with data from {hist_df['Date'].min().date()} to {hist_df['Date'].max().date()}.")
             return hist_df
         else:
             raise Exception(f"Could not load data for '{self.symbol}'")
+    
+    def create_features(self):
+        self._create_daily_candle_features()
+        self._create_streak_features()
+
+    def _create_daily_candle_features(self):
+        self.raw_data['Range'] = self.raw_data['High'] - self.raw_data['Low']
+        self.raw_data['IsGreen'] = (
+            self.raw_data['Close'] >= self.raw_data['Prev Close']
+        ).astype(np.int8)
+    
+    def _create_streak_features(self):
+        green_filter = self.raw_data['IsGreen'] == 1
+
+        self.raw_data["StreakIndex"] = (self.raw_data["IsGreen"] != self.raw_data["IsGreen"].shift(1)).cumsum()
+        self.raw_data["Streak"] = self.raw_data.groupby("StreakIndex").cumcount() + 1
+
+        self.last_candle = self.raw_data['IsGreen'].iloc[-1]
+        self.candle_streak = self.raw_data['Streak'].iloc[-1]
+
+        max_streaks = self.raw_data.groupby(
+            ['StreakIndex', 'IsGreen'], 
+            as_index = False
+        )['Streak'].max()
+
+        self.streak_cont_prob = max_streaks[
+            (max_streaks['IsGreen'] == self.last_candle) &
+            (max_streaks['Streak'] > self.candle_streak)
+        ].shape[0] / max_streaks[max_streaks['IsGreen'] == self.last_candle].shape[0]
