@@ -1,3 +1,7 @@
+.row-section{
+    width: 100%;
+}
+
 .vert-center{
     align-content: center;
 }
@@ -7,9 +11,13 @@
 }
 
 .color-green{
-    color:green;
+    color:mediumseagreen;
 }
 
 .color-red{
-    color:red;
+    color:indianred;
+}
+
+.plot_img{
+    border: 1px solid gray;
 }

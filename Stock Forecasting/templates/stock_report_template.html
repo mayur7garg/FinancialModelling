@@ -11,32 +11,56 @@
 </head>
 
 <body>
-    <h2 class="px-2"><a href="../../index.html">Financial Modelling</a> -> {symbol}</h2>
-    <div class="row p-2">
+    <nav aria-label="breadcrumb" class="px-2 pt-2">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../../index.html">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{symbol}</li>
+        </ol>
+    </nav>
+    <h2 class="px-2 text-center">{symbol}</h2>
+    <div class="row p-2 row-section text-center">
         <p>Analysis based on <span class="metric">{num_records}</span> records from <span
                 class="metric">{start_date}</span> to <span class="metric">{end_date}</span></p>
     </div>
-    <div class="row p-2">
-        <div class="col-md-12 col-lg-3 vert-center">
+    <div class="row px-2 row-section">
+        <div class="col-lg-12 col-xl-3 vert-center">
             <p>Last close price: <span class="metric">{last_close}</span></p>
             <p>Last candle: <span class="metric {last_candle_color}">{last_candle}</span></p>
             <p>{first_hit_info}</p>
             <p>Since then, it has closed over this price <span class="metric">{pcnt_hits_of_last_close}</span> of times
                 which is <span class="metric">{total_hits_of_last_close}</span> trading days.</p>
         </div>
-        <div class="col-md-12 col-lg-9 text-center">
-            <img src="../images/{symbol}_CDF_Close_Price.png" height="400px">
+        <div class="col-lg-12 col-xl-9 text-center">
+            <img src="../images/{symbol}_CDF_Close_Price.png" height="400px" class="plot_img">
         </div>
     </div>
-    <div class="row p-2">
-        <div class="col-md-12 col-lg-3 vert-center">
-            <p>Current streak of same candles: <span class="metric">{candle_streak}</span></p>
+    <hr>
+    <div class="row px-2 row-section">
+        <div class="col-lg-12 col-xl-3 vert-center">
+            <p>Overall percentage of
+                <span class="metric {last_candle_color}">{last_candle}</span> candles:
+                <span class="metric">{last_candle_overall_pcnt}</span>
+            </p>
+            <p>Current streak of
+                <span class="metric {last_candle_color}">{last_candle}</span> candles:
+                <span class="metric">{candle_streak}</span>
+            </p>
             <p>Probability of streak continuing: <span class="metric">{streak_cont_prob}</span></p>
         </div>
-        <div class="col-md-12 col-lg-9 text-center">
-            <img src="../images/{symbol}_Pcnt_Streak_Length.png" height="400px">
+        <div class="col-lg-12 col-xl-9 text-center">
+            <img src="../images/{symbol}_Pcnt_Streak_Length.png" height="400px" class="plot_img">
         </div>
     </div>
+    <hr>
+    <div class="row px-2 row-section">
+        <div class="col-lg-12 col-xl-6 text-center">
+            <img src="../images/{symbol}_Pcnt_Candles_Quarter.png" height="400px" class="plot_img">
+        </div>
+        <div class="col-lg-12 col-xl-6 text-center">
+            <img src="../images/{symbol}_Pcnt_Candles_Year.png" height="400px" class="plot_img">
+        </div>
+    </div>
+    <hr>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

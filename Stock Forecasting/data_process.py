@@ -169,8 +169,8 @@ class StockData:
                     ymin = 0,
                     ymax = kde_y,
                     linestyles = "solid",
-                    colors = "seagreen",
-                    linewidth = 0.8
+                    colors = "mediumseagreen",
+                    linewidth = 1
                 )
 
                 xticks.append(int(kde_x))
@@ -184,20 +184,76 @@ class StockData:
                 self.image_out_path.joinpath(f"{self.symbol}_CDF_Close_Price.png"), 
                 bbox_inches = "tight"
             )
+            plt.close()
 
     def _create_daily_candle_features(self):
         self.raw_data['Range'] = self.raw_data['High'] - self.raw_data['Low']
         self.raw_data['IsGreen'] = (
             self.raw_data['Close'] >= self.raw_data['Prev Close']
         ).astype(np.int8)
+        self.last_candle = self.raw_data['IsGreen'].iloc[-1]
+        self.last_candle_overall_pcnt = len(
+            self.raw_data[
+                self.raw_data['IsGreen'] == self.last_candle
+            ]['IsGreen']
+        ) / self.summary.num_records
+
+        self._save_daily_candle_plots()
+    
+    def _save_daily_candle_plots(self):
+        with sns.axes_style('dark'):
+            plt.figure(figsize = (10, 5), dpi = 125)
+            sns.barplot(
+                data = self.raw_data.groupby(
+                    self.raw_data['Date'].dt.quarter, as_index = False
+                )['IsGreen'].value_counts(normalize = True),
+                x = "Date",
+                y = "proportion",
+                hue = "IsGreen",
+                palette = "blend:indianred,mediumseagreen"
+            )
+            plt.hlines(y = 0.5, xmin = -0.5, xmax = 5, linestyles = "dotted", colors = "red")
+            plt.ylim((0, 1))
+            plt.xlim((-0.5, 3.5))
+            plt.xlabel("Calendar quarter", fontsize = 12)
+            plt.ylabel("Proportion", fontsize = 12)
+            plt.title(f"{self.symbol} - Proportion of candle types by calendar quarter", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Candles_Quarter.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
+            
+            plt.figure(figsize = (10, 5), dpi = 125)
+            sns.barplot(
+                data = self.raw_data.groupby(
+                    self.raw_data['Date'].dt.year, as_index = False
+                )['IsGreen'].value_counts(normalize = True),
+                x = "Date",
+                y = "proportion",
+                hue = "IsGreen",
+                palette = "blend:indianred,mediumseagreen"
+            )
+            plt.hlines(y = 0.5, xmin = -0.5, xmax = 5, linestyles = "dotted", colors = "red")
+            plt.ylim((0, 1))
+            plt.xlim((
+                -0.5, 
+                self.raw_data['Date'].dt.year.max() - self.raw_data['Date'].dt.year.min() + 0.5
+            ))
+            plt.xlabel("Year", fontsize = 12)
+            plt.ylabel("Proportion", fontsize = 12)
+            plt.title(f"{self.symbol} - Proportion of candle types by year", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Candles_Year.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
     
     def _create_streak_features(self):
         green_filter = self.raw_data['IsGreen'] == 1
 
         self.raw_data["StreakIndex"] = (self.raw_data["IsGreen"] != self.raw_data["IsGreen"].shift(1)).cumsum()
         self.raw_data["Streak"] = self.raw_data.groupby("StreakIndex").cumcount() + 1
-
-        self.last_candle = self.raw_data['IsGreen'].iloc[-1]
         self.candle_streak = self.raw_data['Streak'].iloc[-1]
 
         max_streaks = self.raw_data.groupby(
@@ -234,3 +290,4 @@ class StockData:
                 self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Streak_Length.png"), 
                 bbox_inches = "tight"
             )
+            plt.close()
