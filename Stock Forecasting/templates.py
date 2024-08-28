@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 
 from data_process import StockSummary, StockData
@@ -40,10 +41,18 @@ def create_stock_report(
 
     last_candle = "Green" if stock_data.last_candle == 1 else "Red"
 
+    if stock_data.total_hits_of_last_close > 0:
+        first_hit_info = f'{stock_data.symbol} first closed above this last close price on <span class="metric">{stock_data.first_hit_of_last_close:%A %B %d, %Y}</span> which was <span class="metric">{(date.today() - stock_data.first_hit_of_last_close).days}</span> days ago.'
+    else:
+        first_hit_info = f"This is the first time {stock_data.symbol} has closed at this high a price."
+
     report = report.format(
         symbol = stock_data.symbol,
+        last_close = stock_data.last_close,
         last_candle = last_candle,
-        last_candle_color = last_candle.lower(),
+        last_candle_color = f"color-{last_candle.lower()}",
+        first_hit_info = first_hit_info,
+        total_hits_of_last_close = stock_data.total_hits_of_last_close,
         candle_streak = stock_data.candle_streak,
         streak_cont_prob = f"{stock_data.streak_cont_prob:.1%}"
     )

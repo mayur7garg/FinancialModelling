@@ -38,12 +38,14 @@ class StockData:
         else:
             self.raw_data = pd.read_parquet(consolidated_data_path)
 
+        self.last_close = self.raw_data['Close'].iloc[-1]
+
         self.summary = StockSummary(
             self.symbol,
             self.raw_data.shape[0],
             self.raw_data['Date'].min().date(),
             self.raw_data['Date'].max().date(),
-            self.raw_data['Close'].iloc[-1],
+            self.last_close,
             'PE' in self.raw_data.columns
         )
 
@@ -126,8 +128,56 @@ class StockData:
             raise Exception(f"Could not load data for '{self.symbol}'")
     
     def create_features(self):
+        self._create_historical_features()
         self._create_daily_candle_features()
         self._create_streak_features()
+
+    def _create_historical_features(self):
+        self._get_first_hit_of_last_close()
+        self._save_historical_plots()
+
+    def _get_first_hit_of_last_close(self):
+        all_hits = self.raw_data[self.raw_data["Close"] >= self.last_close]
+        self.total_hits_of_last_close = len(all_hits)
+
+        if self.total_hits_of_last_close > 0:
+            self.first_hit_of_last_close = all_hits["Date"].min().date()
+    
+    def _save_historical_plots(self):
+        with sns.axes_style('dark'):
+            plt.figure(figsize = (10, 5), dpi = 125)
+
+            kde_data_x, kde_data_y = sns.kdeplot(
+                data = self.raw_data,
+                x = "Close",
+                cumulative = True
+            ).lines[0].get_data()
+
+            xticks = []
+
+            for q in [i/10 for i in range(1, 10)]:
+                kde_x, kde_y = kde_data_x[kde_data_y > q][0], kde_data_y[kde_data_y > q][0]
+
+                plt.vlines(
+                    x = kde_x,
+                    ymin = 0,
+                    ymax = kde_y,
+                    linestyles = "solid",
+                    colors = "seagreen",
+                    linewidth = 0.8
+                )
+
+                xticks.append(int(kde_x))
+
+            plt.xlim((0, None))
+            plt.xticks(xticks, rotation = 75, fontsize = 8)
+            plt.xlabel("Close Price", fontsize = 12)
+            plt.ylabel("Density", fontsize = 12)
+            plt.title(f"{self.symbol} - CDF and quantiles of Close price", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_CDF_Close_Price.png"), 
+                bbox_inches = "tight"
+            )
 
     def _create_daily_candle_features(self):
         self.raw_data['Range'] = self.raw_data['High'] - self.raw_data['Low']
