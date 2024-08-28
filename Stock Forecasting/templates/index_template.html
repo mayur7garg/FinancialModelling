@@ -10,8 +10,26 @@
 </head>
 
 <body>
-    <h1>Stock Forecasting</h1>
-{stock_summaries}
+    <h1 class="p-2">Financial Modelling</h1>
+    <div class="table-responsive-lg px-2">
+        <table class="table table-hover caption-top">
+            <caption>List of symbols</caption>
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Num Records</th>
+                    <th scope="col">Last Close Price</th>
+                    <th scope="col">PE Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {stock_summaries}
+            </tbody>
+        </table>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

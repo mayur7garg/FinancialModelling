@@ -11,13 +11,17 @@ def create_index(
         index = f.read()
     
     stock_summaries = []
-    for summary in summaries:
+    for summ_i, summary in enumerate(summaries, start = 1):
         stock_summaries.append(
-            f'''<div>
-    <p><a href="web/pages/{summary.symbol}.html">{summary.symbol}</a></p>
-    <p>{summary.num_records} records from {summary.start_date} to {summary.end_date}</p>
-    <p>PE data: {'Available' if summary.has_PE else 'Not available'}</p>
-</div>'''
+            f'''<tr>
+    <th scope="row">#{summ_i}</th>
+    <td><a href="web/pages/{summary.symbol}.html">{summary.symbol}</a></td>
+    <td>{summary.start_date}</td>
+    <td>{summary.end_date}</td>
+    <td>{summary.num_records}</td>
+    <td>{summary.last_close}</td>
+    <td>{'Available' if summary.has_PE else 'Not available'}</td>
+</tr>'''
         )
     
     stock_summaries = "\n".join(stock_summaries)

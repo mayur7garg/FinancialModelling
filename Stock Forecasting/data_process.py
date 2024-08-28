@@ -13,6 +13,7 @@ class StockSummary:
     num_records: int
     start_date: date
     end_date: date
+    last_close: float
     has_PE: bool
 
 class StockData:
@@ -42,6 +43,7 @@ class StockData:
             self.raw_data.shape[0],
             self.raw_data['Date'].min().date(),
             self.raw_data['Date'].max().date(),
+            self.raw_data['Close'].iloc[-1],
             'PE' in self.raw_data.columns
         )
 
