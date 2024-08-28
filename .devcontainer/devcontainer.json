@@ -1,0 +1,13 @@
+{
+	"name": "Python Rust Experiments",
+	"dockerComposeFile": ["../docker-compose.yml"],
+	"service": "finance-modelling",
+	"workspaceFolder": "/src",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python"
+            ]
+        }
+    }
+}
