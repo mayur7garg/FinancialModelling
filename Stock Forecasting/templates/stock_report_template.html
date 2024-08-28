@@ -11,13 +11,18 @@
 </head>
 
 <body>
-    <h1 class="p-2">{symbol}</h1>
+    <h2 class="px-2"><a href="../../index.html">Financial Modelling</a> -> {symbol}</h2>
+    <div class="row p-2">
+        <p>Analysis based on <span class="metric">{num_records}</span> records from <span
+                class="metric">{start_date}</span> to <span class="metric">{end_date}</span></p>
+    </div>
     <div class="row p-2">
         <div class="col-md-12 col-lg-3 vert-center">
             <p>Last close price: <span class="metric">{last_close}</span></p>
             <p>Last candle: <span class="metric {last_candle_color}">{last_candle}</span></p>
             <p>{first_hit_info}</p>
-            <p>Since then, it has closed over this price <span class="metric">{total_hits_of_last_close}</span> times.</p>
+            <p>Since then, it has closed over this price <span class="metric">{pcnt_hits_of_last_close}</span> of times
+                which is <span class="metric">{total_hits_of_last_close}</span> trading days.</p>
         </div>
         <div class="col-md-12 col-lg-9 text-center">
             <img src="../images/{symbol}_CDF_Close_Price.png" height="400px">

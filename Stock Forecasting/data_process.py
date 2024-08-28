@@ -142,6 +142,12 @@ class StockData:
 
         if self.total_hits_of_last_close > 0:
             self.first_hit_of_last_close = all_hits["Date"].min().date()
+            self.pcnt_hit_of_last_close = (
+                self.total_hits_of_last_close / 
+                len(self.raw_data[self.raw_data["Date"].dt.date >= self.first_hit_of_last_close])
+            )
+        else:
+            self.pcnt_hit_of_last_close = 0
     
     def _save_historical_plots(self):
         with sns.axes_style('dark'):
