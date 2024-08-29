@@ -16,6 +16,14 @@ class StockSummary:
     last_close: float
     has_PE: bool
 
+@dataclass
+class CorrelationReport:
+    num_records: int
+    start_date: date
+    end_date: date
+    min_corrs: dict[str, tuple[str, float]]
+    max_corrs: dict[str, tuple[str, float]]
+
 class StockData:
     def __init__(
         self,
@@ -291,3 +299,26 @@ class StockData:
                 bbox_inches = "tight"
             )
             plt.close()
+
+def get_correlation_report(
+    close_prices: list[pd.DataFrame], 
+    max_records = 1000
+) -> CorrelationReport:
+    all_prices = close_prices[0].join(close_prices[1:], how = "outer").sort_index().iloc[-max_records:]
+    
+    corrs = all_prices.corr("spearman")
+    min_corrs = {}
+    max_corrs = {}
+
+    for symbol in corrs.columns:
+        sym_corr = corrs[symbol].sort_values()
+        min_corrs[symbol] = (sym_corr.index[0], sym_corr.iloc[0])
+        max_corrs[symbol] = (sym_corr.index[-2], sym_corr.iloc[-2])
+
+    return CorrelationReport(
+        len(all_prices),
+        all_prices.index.min().date(),
+        all_prices.index.max().date(),
+        min_corrs,
+        max_corrs
+    )

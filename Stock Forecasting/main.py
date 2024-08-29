@@ -2,12 +2,13 @@ from pathlib import Path
 
 import templates
 from utility import Config
-from data_process import StockData
+from data_process import StockData, get_correlation_report
 
 CONFIG = Config(Path("config.json"))
 STOCK_SYMBOLS = CONFIG.get_all_stock_symbols()
 
 summaries = []
+close_prices = []
 
 for symbol in STOCK_SYMBOLS:
     stock_data = StockData(
@@ -18,8 +19,18 @@ for symbol in STOCK_SYMBOLS:
         CONFIG.RELOAD_DATA
     )
     stock_data.create_features()
-    summaries.append(stock_data.summary)
-    
     templates.create_stock_report(CONFIG.STOCK_REPORT_TEMPLATE, CONFIG.PAGES_OUT_DIR, stock_data)
 
-templates.create_index(CONFIG.INDEX_TEMPLATE, CONFIG.INDEX_PATH, summaries)
+    summaries.append(stock_data.summary)
+    close_prices.append(
+        stock_data.raw_data[["Date", "Close"]].rename(
+            columns = {"Close": symbol}
+        ).set_index("Date")
+    )
+
+templates.create_index(
+    CONFIG.INDEX_TEMPLATE, 
+    CONFIG.INDEX_PATH, 
+    summaries,
+    get_correlation_report(close_prices)
+)
