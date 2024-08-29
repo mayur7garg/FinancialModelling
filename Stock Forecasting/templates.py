@@ -75,6 +75,7 @@ def create_stock_report(
         pcnt_hits_of_last_close = f"{stock_data.pcnt_hit_of_last_close:.1%}",
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
         candle_streak = stock_data.candle_streak,
+        curr_streak_returns = f"{stock_data.curr_streak_returns:.2%}",
         streak_cont_prob = f"{stock_data.streak_cont_prob:.1%}"
     )
 

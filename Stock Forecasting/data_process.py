@@ -263,6 +263,9 @@ class StockData:
         self.raw_data["StreakIndex"] = (self.raw_data["IsGreen"] != self.raw_data["IsGreen"].shift(1)).cumsum()
         self.raw_data["Streak"] = self.raw_data.groupby("StreakIndex").cumcount() + 1
         self.candle_streak = self.raw_data['Streak'].iloc[-1]
+        si = self.raw_data['StreakIndex'].iloc[-1]
+        curr_si = self.raw_data.loc[self.raw_data['StreakIndex'] == si, ['Prev Close', 'Close']]
+        self.curr_streak_returns = (curr_si['Close'].iloc[-1] / curr_si['Prev Close'].iloc[0]) - 1
 
         max_streaks = self.raw_data.groupby(
             ['StreakIndex', 'IsGreen'], 
@@ -306,7 +309,7 @@ def get_correlation_report(
 ) -> CorrelationReport:
     all_prices = close_prices[0].join(close_prices[1:], how = "outer").sort_index().iloc[-max_records:]
     
-    corrs = all_prices.corr("spearman")
+    corrs = all_prices.corr("pearson")
     min_corrs = {}
     max_corrs = {}
 
