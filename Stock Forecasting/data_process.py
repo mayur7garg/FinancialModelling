@@ -24,6 +24,15 @@ class CorrelationReport:
     min_corrs: dict[str, tuple[str, float]]
     max_corrs: dict[str, tuple[str, float]]
 
+@dataclass
+class PerformanceReport:
+    period_size: int
+    start_date: date
+    net_returns: float
+    avg_daily_returns: float
+    lowest_close: float
+    hightest_close: float
+
 class StockData:
     def __init__(
         self,
@@ -56,6 +65,7 @@ class StockData:
             self.last_close,
             'PE' in self.raw_data.columns
         )
+        self.perf_reports: list[PerformanceReport] = []
 
     def consolidate_data(
             self,
@@ -135,10 +145,28 @@ class StockData:
         else:
             raise Exception(f"Could not load data for '{self.symbol}'")
     
-    def create_features(self):
+    def create_features(self, performance_periods: list[int]):
+        self._create_performance_features(performance_periods)
         self._create_historical_features()
         self._create_daily_candle_features()
         self._create_streak_features()
+
+    def _create_performance_features(self, performance_periods: list[int]):
+        for period in performance_periods:
+            period_df = self.raw_data.iloc[-period :]
+            period_size = len(period_df)
+            net_returns = (period_df['Close'].iloc[-1] / period_df['Prev Close'].iloc[0])
+
+            self.perf_reports.append(
+                PerformanceReport(
+                    period_size,
+                    period_df['Date'].min().date(),
+                    net_returns - 1,
+                    (net_returns ** (1 / period_size)) - 1,
+                    period_df['Close'].min(),
+                    period_df['Close'].max()
+                )
+            )
 
     def _create_historical_features(self):
         self._get_first_hit_of_last_close()
@@ -258,8 +286,6 @@ class StockData:
             plt.close()
     
     def _create_streak_features(self):
-        green_filter = self.raw_data['IsGreen'] == 1
-
         self.raw_data["StreakIndex"] = (self.raw_data["IsGreen"] != self.raw_data["IsGreen"].shift(1)).cumsum()
         self.raw_data["Streak"] = self.raw_data.groupby("StreakIndex").cumcount() + 1
         self.candle_streak = self.raw_data['Streak'].iloc[-1]
@@ -275,7 +301,10 @@ class StockData:
         self.streak_cont_prob = max_streaks[
             (max_streaks['IsGreen'] == self.last_candle) &
             (max_streaks['Streak'] > self.candle_streak)
-        ].shape[0] / max_streaks[max_streaks['IsGreen'] == self.last_candle].shape[0]
+        ].shape[0] / max_streaks[
+            (max_streaks['IsGreen'] == self.last_candle) &
+            (max_streaks['Streak'] >= self.candle_streak)
+        ].shape[0]
 
         self._save_streak_plots(max_streaks)
     

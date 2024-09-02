@@ -55,6 +55,28 @@ def create_stock_report(
     with template_path.open('r', encoding = "utf-8") as f:
         report = f.read()
 
+    perf_period_size = ['<th scope="col"></th>']
+    perf_start_date = ['<th scope="row">Start Date</th>']
+    perf_net_returns = ['<th scope="row">Net Return</th>']
+    perf_avg_daily_returns = ['<th scope="row">Average Daily Return</th>']
+    perf_lowest_close = ['<th scope="row">Lowest Close Price</th>']
+    perf_highest_close = ['<th scope="row">Highest Close Price</th>']
+
+    for perf_report in stock_data.perf_reports:
+        perf_period_size.append(f'<th scope="col">{perf_report.period_size} Days</th>')
+        perf_start_date.append(f'<td>{perf_report.start_date:%B %d, %Y}</td>')
+
+        perf_color = 'color-green' if perf_report.net_returns > 0 else 'color-red'
+        perf_net_returns.append(
+            f'<td><span class="{perf_color} metric">{perf_report.net_returns:.2%}</span></td>'
+        )
+        perf_avg_daily_returns.append(
+            f'<td><span class="{perf_color} metric">{perf_report.avg_daily_returns:.2%}</span></td>'
+        )
+        
+        perf_lowest_close.append(f'<td>{perf_report.lowest_close:.2f}</td>')
+        perf_highest_close.append(f'<td>{perf_report.hightest_close:.2f}</td>')
+
     last_candle = "Green" if stock_data.last_candle == 1 else "Red"
 
     if stock_data.total_hits_of_last_close > 0:
@@ -67,6 +89,13 @@ def create_stock_report(
         num_records = stock_data.summary.num_records,
         start_date = f"{stock_data.summary.start_date:%B %d, %Y}",
         end_date = f"{stock_data.summary.end_date:%B %d, %Y}",
+        today_date = f"{date.today():%B %d, %Y}",
+        perf_period_size = "\n".join(perf_period_size),
+        perf_start_date = "\n".join(perf_start_date),
+        perf_net_returns = "\n".join(perf_net_returns),
+        perf_avg_daily_returns = "\n".join(perf_avg_daily_returns),
+        perf_lowest_close = "\n".join(perf_lowest_close),
+        perf_highest_close = "\n".join(perf_highest_close),
         last_close = stock_data.last_close,
         last_candle = last_candle,
         last_candle_color = f"color-{last_candle.lower()}",

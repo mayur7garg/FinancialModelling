@@ -21,7 +21,37 @@
     <div class="row p-2 row-section text-center">
         <p>Analysis based on <span class="metric">{num_records}</span> records from <span
                 class="metric">{start_date}</span> to <span class="metric">{end_date}</span></p>
+        <p>Last updated on <span class="metric">{today_date}</span></p>
+        <p><a href="../../data/NSE/{symbol}/consolidated.parquet">Download data</a></p>
     </div>
+    <div class="table-responsive-lg px-2">
+        <table class="table table-hover">
+            <caption>Historical performance report</caption>
+            <thead class="table-dark">
+                <tr>
+                    {perf_period_size}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {perf_start_date}
+                </tr>
+                <tr>
+                    {perf_net_returns}
+                </tr>
+                <tr>
+                    {perf_avg_daily_returns}
+                </tr>
+                <tr>
+                    {perf_lowest_close}
+                </tr>
+                <tr>
+                    {perf_highest_close}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
     <div class="row px-2 row-section">
         <div class="col-lg-12 col-xl-3 vert-center">
             <p>Last close price: <span class="metric">{last_close}</span></p>
@@ -45,7 +75,7 @@
                 <span class="metric {last_candle_color}">{last_candle}</span> candles:
                 <span class="metric">{candle_streak}</span>
             </p>
-            <p>Net change so far for the current streak: 
+            <p>Net change so far for the current streak:
                 <span class="metric {last_candle_color}">{curr_streak_returns}</span>
             </p>
             <p>Probability of streak continuing: <span class="metric">{streak_cont_prob}</span></p>
