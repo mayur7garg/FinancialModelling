@@ -59,6 +59,7 @@ def create_stock_report(
     perf_start_date = ['<th scope="row">Start Date</th>']
     perf_net_returns = ['<th scope="row">Net Return</th>']
     perf_avg_daily_returns = ['<th scope="row">Average Daily Return</th>']
+    perf_avg_close = ['<th scope="row">Average Close Price</th>']
     perf_lowest_close = ['<th scope="row">Lowest Close Price</th>']
     perf_highest_close = ['<th scope="row">Highest Close Price</th>']
 
@@ -71,9 +72,10 @@ def create_stock_report(
             f'<td><span class="{perf_color} metric">{perf_report.net_returns:.2%}</span></td>'
         )
         perf_avg_daily_returns.append(
-            f'<td><span class="{perf_color} metric">{perf_report.avg_daily_returns:.2%}</span></td>'
+            f'<td><span class="{perf_color} metric">{perf_report.avg_daily_returns:.3%}</span></td>'
         )
         
+        perf_avg_close.append(f'<td>{perf_report.avg_close:.2f}</td>')
         perf_lowest_close.append(f'<td>{perf_report.lowest_close:.2f}</td>')
         perf_highest_close.append(f'<td>{perf_report.hightest_close:.2f}</td>')
 
@@ -94,6 +96,7 @@ def create_stock_report(
         perf_start_date = "\n".join(perf_start_date),
         perf_net_returns = "\n".join(perf_net_returns),
         perf_avg_daily_returns = "\n".join(perf_avg_daily_returns),
+        perf_avg_close = "\n".join(perf_avg_close),
         perf_lowest_close = "\n".join(perf_lowest_close),
         perf_highest_close = "\n".join(perf_highest_close),
         last_close = stock_data.last_close,

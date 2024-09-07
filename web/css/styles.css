@@ -20,4 +20,6 @@
 
 .plot_img{
     border: 1px solid gray;
+    width: 100%;
+    max-width: 900px;
 }

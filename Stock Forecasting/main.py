@@ -18,7 +18,10 @@ for symbol in STOCK_SYMBOLS:
         CONFIG.IMAGES_OUT_DIR,
         CONFIG.RELOAD_DATA
     )
-    stock_data.create_features(performance_periods = [5, 15, 50, 200, 1000])
+    stock_data.create_features(
+        performance_periods = [5, 15, 50, 200, 1000],
+        sp_ma_periods = [list(range(1, 21)), list(range(5, 101, 5))]
+    )
     templates.create_stock_report(CONFIG.STOCK_REPORT_TEMPLATE, CONFIG.PAGES_OUT_DIR, stock_data)
 
     summaries.append(stock_data.summary)

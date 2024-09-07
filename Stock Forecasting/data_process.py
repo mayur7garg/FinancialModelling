@@ -7,6 +7,8 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 
+from metrics import spearman_over_ma
+
 @dataclass
 class StockSummary:
     symbol: str
@@ -30,6 +32,7 @@ class PerformanceReport:
     start_date: date
     net_returns: float
     avg_daily_returns: float
+    avg_close: float
     lowest_close: float
     hightest_close: float
 
@@ -145,11 +148,16 @@ class StockData:
         else:
             raise Exception(f"Could not load data for '{self.symbol}'")
     
-    def create_features(self, performance_periods: list[int]):
+    def create_features(
+        self, 
+        performance_periods: list[int],
+        sp_ma_periods: list[list[int]]
+    ):
         self._create_performance_features(performance_periods)
         self._create_historical_features()
         self._create_daily_candle_features()
         self._create_streak_features()
+        self._create_sp_ma_features(sp_ma_periods)
 
     def _create_performance_features(self, performance_periods: list[int]):
         for period in performance_periods:
@@ -163,6 +171,7 @@ class StockData:
                     period_df['Date'].min().date(),
                     net_returns - 1,
                     (net_returns ** (1 / period_size)) - 1,
+                    period_df['Close'].mean(),
                     period_df['Close'].min(),
                     period_df['Close'].max()
                 )
@@ -331,6 +340,63 @@ class StockData:
                 bbox_inches = "tight"
             )
             plt.close()
+
+    def _create_sp_ma_features(self, sp_ma_periods: list[list[int]]):
+        sp_col_names = []
+
+        for sp_wins in sp_ma_periods:
+            col_name = f"MA-S ({min(sp_wins)}, {max(sp_wins)}, {len(sp_wins)})"
+            self.raw_data[col_name] = spearman_over_ma(
+                self.raw_data['Close'],
+                sp_wins
+            )
+            sp_col_names.append(col_name)
+
+        self._save_sp_ma_plts(sp_col_names)
+    
+    def _save_sp_ma_plts(self, sp_col_names: list[str]):
+        bins = [-1, -0.25, 0.25, 1]
+        plot_data = self.raw_data[
+            ['Date', 'Close'] + sp_col_names
+        ].iloc[-500:]
+
+        for c_i, col_name in enumerate(sp_col_names, start = 1):
+            with sns.axes_style('dark'):
+                plt.figure(figsize = (10, 5), dpi = 125)
+                colors = pd.cut(
+                    plot_data[col_name], 
+                    bins = bins, 
+                    labels = ['indianred', 'goldenrod', 'mediumseagreen'], 
+                    include_lowest = True
+                ).values
+
+                labels = pd.cut(
+                    plot_data[col_name], 
+                    bins = bins, 
+                    labels = ['Weak', 'Neutral', 'Strong'], 
+                    include_lowest = True
+                ).values
+
+                for i in range(1, len(plot_data)):
+                    plt.plot(
+                        plot_data['Date'].iloc[i - 1 : i + 1],
+                        plot_data['Close'].iloc[i - 1 : i + 1],
+                        c = colors[i],
+                        label = labels[i],
+                        linewidth = 1.5
+                    )
+
+                handles, hand_labels = plt.gca().get_legend_handles_labels()
+                by_label = dict(zip(hand_labels, handles))
+                plt.legend(by_label.values(), by_label.keys())
+                plt.xlabel("Date", fontsize = 12)
+                plt.ylabel("Close Price", fontsize = 12)
+                plt.title(f"{self.symbol} - Close price highlighted by {col_name}", fontsize = 14)
+                plt.savefig(
+                    self.image_out_path.joinpath(f"{self.symbol}_Close_Price_MA_S_{c_i}.png"), 
+                    bbox_inches = "tight"
+                )
+                plt.close()
 
 def get_correlation_report(
     close_prices: list[pd.DataFrame], 
