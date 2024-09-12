@@ -1,6 +1,8 @@
 name: rebuild webpages
 
-on: workflow_dispatch
+on:
+  schedule:
+    - cron: "0 20 * * 1-5"
 
 permissions:
   contents: write

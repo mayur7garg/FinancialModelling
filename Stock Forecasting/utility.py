@@ -16,11 +16,6 @@ class Config:
             f"{self.EPS_DATA_DIR = } | Valid: {self.EPS_DATA_DIR.exists() & self.EPS_DATA_DIR.is_dir()}"
         )
 
-        self.PROCESSED_DATA_DIR = Path(conf_dict['processed_data_dir'])
-        print(
-            f"{self.PROCESSED_DATA_DIR = } | Valid: {self.PROCESSED_DATA_DIR.exists() & self.PROCESSED_DATA_DIR.is_dir()}"
-        )
-
         self.INDEX_TEMPLATE = Path(conf_dict['index_template'])
         print(
             f"{self.INDEX_TEMPLATE = } | Valid: {self.INDEX_TEMPLATE.exists() & self.INDEX_TEMPLATE.is_file()}"
