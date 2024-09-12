@@ -46,10 +46,9 @@ class Config:
             f"{self.IMAGES_OUT_DIR = } | Valid: {self.IMAGES_OUT_DIR.exists() & self.IMAGES_OUT_DIR.is_dir()}"
         )
 
-        self.RELOAD_DATA: bool = conf_dict['reload_data']
         self.RANDOM_STATE = 7
 
     def get_all_stock_symbols(self):
-        return [
+        return sorted([
             f.stem for f in self.NSE_DATA_DIR.glob("*") if f.is_dir()
-        ]
+        ])

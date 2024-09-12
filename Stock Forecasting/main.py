@@ -2,6 +2,7 @@ from pathlib import Path
 
 import templates
 from utility import Config
+from data_download import update_hist_eq_data
 from data_process import StockData, get_correlation_report
 
 CONFIG = Config(Path("config.json"))
@@ -11,12 +12,14 @@ summaries = []
 close_prices = []
 
 for symbol in STOCK_SYMBOLS:
+    is_data_updated = update_hist_eq_data(symbol, CONFIG.NSE_DATA_DIR)
+
     stock_data = StockData(
         symbol, 
         CONFIG.NSE_DATA_DIR, 
         CONFIG.EPS_DATA_DIR,
         CONFIG.IMAGES_OUT_DIR,
-        CONFIG.RELOAD_DATA
+        is_data_updated
     )
     stock_data.create_features(
         performance_periods = [5, 15, 50, 200, 1000],

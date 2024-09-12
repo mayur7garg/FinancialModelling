@@ -4,6 +4,5 @@
     "processed_data_dir": "../data/processed",
     "index_template": "templates/index_template.html",
     "stock_report_template": "templates/stock_report_template.html",
-    "index_path": "..",
-    "reload_data": false
+    "index_path": ".."
 }
