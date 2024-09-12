@@ -5,11 +5,12 @@ from zoneinfo import ZoneInfo
 from datetime import datetime, date, timedelta
 
 START_DATE = date(2020, 1, 1)
+RUN_DATE = datetime.now(tz = ZoneInfo("Asia/Calcutta"))
 
-if datetime.now(tz = ZoneInfo("Asia/Calcutta")).hour >= 18:
-    END_DATE = date.today()
+if RUN_DATE.hour >= 18:
+    END_DATE = RUN_DATE.date()
 else:
-    END_DATE = date.today() - timedelta(days = 1)
+    END_DATE = RUN_DATE.date() - timedelta(days = 1)
 
 DATA_YEARS = range(START_DATE.year, END_DATE.year + 1)
 FILENAME_PTRN = "filename=(.+)"
