@@ -17,4 +17,5 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: execute py script
         run: |
-          python 'Stock Forecasting'/main.py
+          cd 'Stock Forecasting'
+          python main.py
