@@ -1,0 +1,20 @@
+name: rebuild webpages
+
+on: workflow_dispatch
+
+jobs:
+  rebuild_website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v3 # checkout the repository content to github runner.
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11.6
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: execute py script
+        run: |
+          python 'Stock Forecasting'/main.py
