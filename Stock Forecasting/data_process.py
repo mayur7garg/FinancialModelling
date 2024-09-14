@@ -154,6 +154,7 @@ class StockData:
         sp_ma_periods: list[list[int]]
     ):
         self._create_performance_features(performance_periods)
+        self._create_rolling_features()
         self._create_historical_features()
         self._create_daily_candle_features()
         self._create_streak_features()
@@ -176,6 +177,88 @@ class StockData:
                     period_df['Close'].max()
                 )
             )
+    
+    def _create_rolling_features(self):
+        self.raw_data['RollingReturns_200_Pcnt'] = (
+            self.raw_data['Close'] / 
+            self.raw_data['Prev Close'].rolling(
+                window = 200, 
+                min_periods = 200
+            ).agg(lambda rows: rows.iloc[0])
+        )
+
+        self.raw_data['RollingReturns_1000_Pcnt'] = (
+            self.raw_data['Close'] / 
+            self.raw_data['Prev Close'].rolling(
+                window = 1000, 
+                min_periods = 200
+            ).agg(lambda rows: rows.iloc[0])
+        )
+
+        self.raw_data['RollingReturns_200_Pcnt'] = (
+            (self.raw_data['RollingReturns_200_Pcnt'] ** (1 / 200)) - 1
+        ).round(5) * 100
+        self.raw_data['RollingReturns_1000_Pcnt'] = (
+            (self.raw_data['RollingReturns_1000_Pcnt'] ** (1 / 1000)) - 1
+        ).round(5) * 100
+
+        self._save_rolling_plots()
+    
+    def _save_rolling_plots(self):
+        with sns.axes_style('dark'):
+            plot_data = self.raw_data[
+                ['Date', 'RollingReturns_200_Pcnt', 'RollingReturns_1000_Pcnt']
+            ].iloc[-500:]
+
+            plt.figure(figsize = (10, 5), dpi = 125)
+            sns.lineplot(
+                plot_data,
+                x = 'Date',
+                y = 'RollingReturns_200_Pcnt'
+            )
+
+            plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "No change")
+            plt.axhline(
+                y = plot_data['RollingReturns_200_Pcnt'].median(), 
+                linestyle = "dashdot",
+                linewidth = 1.5,
+                color = "mediumseagreen", 
+                label = "Median return"
+            )
+            plt.legend()
+            plt.xlabel("End date", fontsize = 12)
+            plt.ylabel("Average Daily Return (%)", fontsize = 12)
+            plt.title(f"{self.symbol} - Average daily 200 days rolling returns", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Avg_Rolling_Returns_200.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
+
+            plt.figure(figsize = (10, 5), dpi = 125)
+            sns.lineplot(
+                plot_data[['Date', 'RollingReturns_1000_Pcnt']],
+                x = 'Date',
+                y = 'RollingReturns_1000_Pcnt'
+            )
+
+            plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "No change")
+            plt.axhline(
+                y = plot_data['RollingReturns_1000_Pcnt'].median(), 
+                linestyle = "dashdot",
+                linewidth = 1.5,
+                color = "mediumseagreen", 
+                label = "Median return"
+            )
+            plt.legend()
+            plt.xlabel("End date", fontsize = 12)
+            plt.ylabel("Average Daily Return (%)", fontsize = 12)
+            plt.title(f"{self.symbol} - Average daily 1000 days rolling returns", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Avg_Rolling_Returns_1000.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
 
     def _create_historical_features(self):
         self._get_first_hit_of_last_close()
@@ -257,7 +340,14 @@ class StockData:
                 hue = "IsGreen",
                 palette = "blend:indianred,mediumseagreen"
             )
-            plt.hlines(y = 0.5, xmin = -0.5, xmax = 5, linestyles = "dotted", colors = "red")
+            plt.hlines(
+                y = 0.5, 
+                xmin = -0.5, 
+                xmax = 5, 
+                linestyles = "dashdot",
+                linewidths = (1.5,),
+                colors = "goldenrod"
+            )
             plt.ylim((0, 1))
             plt.xlim((-0.5, 3.5))
             plt.xlabel("Calendar quarter", fontsize = 12)
@@ -279,7 +369,14 @@ class StockData:
                 hue = "IsGreen",
                 palette = "blend:indianred,mediumseagreen"
             )
-            plt.hlines(y = 0.5, xmin = -0.5, xmax = 5, linestyles = "dotted", colors = "red")
+            plt.hlines(
+                y = 0.5, 
+                xmin = -0.5, 
+                xmax = 5, 
+                linestyles = "dashdot",
+                linewidths = (1.5,),
+                colors = "goldenrod"
+            )
             plt.ylim((0, 1))
             plt.xlim((
                 -0.5, 
@@ -355,7 +452,7 @@ class StockData:
         self._save_sp_ma_plts(sp_col_names)
     
     def _save_sp_ma_plts(self, sp_col_names: list[str]):
-        bins = [-1, -0.25, 0.25, 1]
+        bins = [-1, -0.3, 0.3, 1]
         plot_data = self.raw_data[
             ['Date', 'Close'] + sp_col_names
         ].iloc[-500:]

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NIFTYBEES - Financial Modelling</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav aria-label="breadcrumb" class="px-2 pt-2">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../../index.html">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">NIFTYBEES</li>
+        </ol>
+    </nav>
+    <h2 class="px-2 text-center">NIFTYBEES</h2>
+    <div class="row p-2 row-section text-center">
+        <p>Analysis based on <span class="metric">252</span> records from <span
+                class="metric">January 01, 2020</span> to <span class="metric">December 31, 2020</span></p>
+        <p>Last updated on <span class="metric">September 14, 2024</span></p>
+        <p><a href="../../data/NSE/NIFTYBEES/consolidated.parquet">Download data</a></p>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Historical performance</h4>
+        <div class="table-responsive-lg px-2">
+            <table class="table table-hover">
+                <caption>Historical performance report</caption>
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col"></th>
+<th scope="col">5 Days</th>
+<th scope="col">15 Days</th>
+<th scope="col">50 Days</th>
+<th scope="col">200 Days</th>
+<th scope="col">252 Days</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Start Date</th>
+<td>December 24, 2020</td>
+<td>December 10, 2020</td>
+<td>October 21, 2020</td>
+<td>March 16, 2020</td>
+<td>January 01, 2020</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Net Return</th>
+<td><span class="color-green metric">2.72%</span></td>
+<td><span class="color-green metric">3.23%</span></td>
+<td><span class="color-green metric">17.59%</span></td>
+<td><span class="color-green metric">40.16%</span></td>
+<td><span class="color-green metric">15.42%</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Average Daily Return</th>
+<td><span class="color-green metric">0.539%</span></td>
+<td><span class="color-green metric">0.212%</span></td>
+<td><span class="color-green metric">0.325%</span></td>
+<td><span class="color-green metric">0.169%</span></td>
+<td><span class="color-green metric">0.057%</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Average Close Price</th>
+<td>148.28</td>
+<td>145.92</td>
+<td>137.51</td>
+<td>117.07</td>
+<td>118.84</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Lowest Close Price</th>
+<td>146.52</td>
+<td>142.50</td>
+<td>124.37</td>
+<td>83.52</td>
+<td>83.52</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Highest Close Price</th>
+<td>149.27</td>
+<td>149.27</td>
+<td>149.27</td>
+<td>149.27</td>
+<td>149.27</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <hr>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Average daily rolling returns</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-6 text-center">
+                <img src="../images/NIFTYBEES_Avg_Rolling_Returns_200.png" class="plot_img">
+            </div>
+            <div class="col-lg-12 col-xl-6 text-center">
+                <img src="../images/NIFTYBEES_Avg_Rolling_Returns_1000.png" class="plot_img">
+            </div>
+        </div>
+        <hr>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Distribution of Close price</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-3 vert-center">
+                <p>Last close price: <span class="metric">149.07</span></p>
+                <p>Last candle: <span class="metric color-red">Red</span></p>
+                <p>NIFTYBEES first closed above this last close price on <span class="metric">Wednesday, December 30, 2020</span> which was <span class="metric">1354</span> days ago.</p>
+                <p>Since then, it has closed over this price <span class="metric">100.0%</span> of
+                    times
+                    which is <span class="metric">2</span> trading days.</p>
+            </div>
+            <div class="col-lg-12 col-xl-9 text-center">
+                <img src="../images/NIFTYBEES_CDF_Close_Price.png" class="plot_img">
+            </div>
+        </div>
+        <hr>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Streaks by candle types</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-3 vert-center">
+                <p>Overall percentage of
+                    <span class="metric color-red">Red</span> candles:
+                    <span class="metric">39.3%</span>
+                </p>
+                <p>Current streak of
+                    <span class="metric color-red">Red</span> candles:
+                    <span class="metric">1</span>
+                </p>
+                <p>Net change so far for the current streak:
+                    <span class="metric color-red">-0.13%</span>
+                </p>
+                <p>Probability of streak continuing: <span class="metric">39.7%</span></p>
+            </div>
+            <div class="col-lg-12 col-xl-9 text-center">
+                <img src="../images/NIFTYBEES_Pcnt_Streak_Length.png" class="plot_img">
+            </div>
+        </div>
+        <hr>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Proportion by candle types</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-6 text-center">
+                <img src="../images/NIFTYBEES_Pcnt_Candles_Quarter.png" class="plot_img">
+            </div>
+            <div class="col-lg-12 col-xl-6 text-center">
+                <img src="../images/NIFTYBEES_Pcnt_Candles_Year.png" class="plot_img">
+            </div>
+        </div>
+        <hr>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Spearman correlation over moving averages</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-6 text-center">
+                <img src="../images/NIFTYBEES_Close_Price_MA_S_1.png" class="plot_img">
+            </div>
+            <div class="col-lg-12 col-xl-6 text-center">
+                <img src="../images/NIFTYBEES_Close_Price_MA_S_2.png" class="plot_img">
+            </div>
+        </div>
+        <hr>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
