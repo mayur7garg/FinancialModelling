@@ -2,5 +2,6 @@ ipykernel
 marimo[sql]
 pandas
 pyarrow
+requests
 seaborn
 scikit-learn
