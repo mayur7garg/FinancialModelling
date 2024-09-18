@@ -1,4 +1,5 @@
-jupyter
+ipykernel
+marimo[sql]
 pandas
 pyarrow
 seaborn

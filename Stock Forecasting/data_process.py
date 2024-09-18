@@ -47,16 +47,16 @@ class StockData:
     ) -> None:
         self.symbol = symbol
         self.image_out_path = image_out_path
-        consolidated_data_path = stock_data_dir.joinpath(symbol, "consolidated.parquet")
+        self.consolidated_data_path = stock_data_dir.joinpath(symbol, "consolidated.parquet")
 
-        if reload_data or (not (consolidated_data_path.exists() and consolidated_data_path.is_file())):
+        if reload_data or (not (self.consolidated_data_path.exists() and self.consolidated_data_path.is_file())):
             self.raw_data = self.consolidate_data(
                 stock_data_dir,
                 eps_data_dir
             )
-            self.raw_data.to_parquet(consolidated_data_path, index = False)
+            self.raw_data.to_parquet(self.consolidated_data_path, index = False)
         else:
-            self.raw_data = pd.read_parquet(consolidated_data_path)
+            self.raw_data = pd.read_parquet(self.consolidated_data_path)
 
         self.last_close = self.raw_data['Close'].iloc[-1]
 
