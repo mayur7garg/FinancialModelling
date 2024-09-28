@@ -1,8 +1,8 @@
 import marimo
 
-__generated_with = "0.8.15"
+__generated_with = "0.8.18"
 app = marimo.App(
-    width="medium",
+    width="full",
     layout_file="layouts/stock_interactive.grid.json",
 )
 
@@ -36,7 +36,7 @@ def __(STOCK_SYMBOLS, mo):
     )
 
     symbol
-    return symbol,
+    return (symbol,)
 
 
 @app.cell
@@ -57,7 +57,7 @@ def __(CONFIG, StockData, symbol):
 
     stock_data.create_features(
         performance_periods = [5, 15, 50, 200, 1000],
-        sp_ma_periods = [list(range(1, 21)), list(range(5, 101, 5))]
+        sp_ma_periods = [list(range(1, 16)), list(range(5, 101, 5))]
     )
 
     raw_df = stock_data.raw_data
@@ -98,7 +98,7 @@ def __(pd, stock_data):
     )
 
     perf_reports
-    return perf_reports,
+    return (perf_reports,)
 
 
 @app.cell
@@ -135,7 +135,7 @@ def __(date, mo, stock_data):
     ### {stock_data.symbol} first closed above this last close price on {stock_data.first_hit_of_last_close:%A, %B %d, %Y} which was {(date.today() - stock_data.first_hit_of_last_close).days} days ago.
     ### Since then, it has closed over this price {stock_data.pcnt_hit_of_last_close:.1%} of times which is {stock_data.total_hits_of_last_close} trading days.
     """)
-    return last_candle,
+    return (last_candle,)
 
 
 @app.cell
@@ -200,6 +200,92 @@ def __(mo, symbol):
 @app.cell
 def __(mo, symbol):
     mo.image(src = f"../web/images/{symbol.value}_Close_Price_MA_S_2.png")
+    return
+
+
+@app.cell
+def __(pd, raw_df):
+    bins = [-1, -0.3, 0.3, 1]
+
+    investing_df = raw_df[[
+        'Date', 'Close',
+        'MA-S (1-15-15)', 'MA-S (5-100-20)'
+    ]].copy()
+
+    investing_df["Label MA-S (1-15-15)"] = pd.cut(
+        investing_df['MA-S (1-15-15)'], 
+        bins = bins, 
+        labels = ['Weak', 'Neutral', 'Strong'], 
+        include_lowest = True
+    )
+
+    investing_df["Label MA-S (5-100-20)"] = pd.cut(
+        investing_df['MA-S (5-100-20)'], 
+        bins = bins, 
+        labels = ['Weak', 'Neutral', 'Strong'], 
+        include_lowest = True
+    )
+
+    investing_df.iloc[-500:]
+    return bins, investing_df
+
+
+@app.cell
+def __(investing_df):
+    def get_mas_returns(
+        df,
+        mas_label_colname: str,
+        start_amount = 10_000,
+        wait_days = 1
+    ):
+        df = df.copy()
+        units_held = 0
+        money_held = start_amount
+        transactions = 0
+        streak_indices = (df[mas_label_colname] != df[mas_label_colname].shift(1)).cumsum()
+        df[f'{mas_label_colname} Streak'] = streak_indices.groupby(streak_indices).cumcount() + 1
+
+        for _, row in df.iterrows():
+            if row[mas_label_colname] != 'Neutral':
+                current_streak = row[mas_label_colname]
+                streak = row[f'{mas_label_colname} Streak']
+
+                if current_streak == 'Strong':
+                    if (money_held > 0) and (streak == wait_days):
+                        units_held += money_held / row['Close']
+                        money_held = 0
+                        transactions += 1
+                        print(f"Bought {units_held:.2f} units on {row['Date'].date()} at {row['Close']} after streak of {streak}.")
+
+                if current_streak == 'Weak':
+                    if (units_held > 0) and (streak == wait_days):
+                        money_held += units_held * row['Close']
+                        print(f"Sold {units_held:.2f} units on {row['Date'].date()} at {row['Close']} after streak of {streak}.")
+                        units_held = 0
+
+        money_held += units_held * df['Close'].iloc[-1]
+        print(f"Sold remaining {units_held:.2f} units at {df['Close'].iloc[-1]}.")
+        print(f"\nTotal trades: {transactions}")
+        return (money_held - start_amount).round(2)
+
+    get_mas_returns(investing_df.iloc[-500:], "Label MA-S (1-15-15)")
+    return (get_mas_returns,)
+
+
+@app.cell
+def __(get_mas_returns, investing_df):
+    get_mas_returns(investing_df.iloc[-500:], "Label MA-S (1-15-15)", wait_days = 2)
+    return
+
+
+@app.cell
+def __(get_mas_returns, investing_df):
+    get_mas_returns(investing_df.iloc[-500:], "Label MA-S (5-100-20)")
+    return
+
+
+@app.cell
+def __():
     return
 
 
