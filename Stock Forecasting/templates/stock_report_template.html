@@ -134,6 +134,29 @@
         </div>
         <hr>
     </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Drawdown from ATH</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-3 vert-center">
+                <p>Current down from ATH: 
+                    <span class="metric color-red">{curr_pcnt_down_ath}</span>
+                </p>
+                <p>Most down from ATH: 
+                    <span class="metric color-red">{max_pcnt_down_ath}</span>
+                </p>
+                <p>ATH hits in last 1000 days: 
+                    <span class="metric color-green">{ath_hits_1000_days}</span>
+                </p>
+                <p>ATH was last hit on  
+                    <span class="metric">{last_ath_date}</span>.
+                </p>
+            </div>
+            <div class="col-lg-12 col-xl-9 text-center">
+                <img src="../images/{symbol}_Pcnt_Drawdown_ATH.png" class="plot_img">
+            </div>
+        </div>
+        <hr>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

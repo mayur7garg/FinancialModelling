@@ -159,6 +159,7 @@ class StockData:
         self._create_daily_candle_features()
         self._create_streak_features()
         self._create_sp_ma_features(sp_ma_periods)
+        self._create_ath_features()
 
     def _create_performance_features(self, performance_periods: list[int]):
         for period in performance_periods:
@@ -179,7 +180,7 @@ class StockData:
             )
     
     def _create_rolling_features(self):
-        self.raw_data['RollingReturns_200_Pcnt'] = (
+        self.raw_data['% Rolling Returns 200 days'] = (
             self.raw_data['Close'] / 
             self.raw_data['Prev Close'].rolling(
                 window = 200, 
@@ -187,7 +188,7 @@ class StockData:
             ).agg(lambda rows: rows.iloc[0])
         )
 
-        self.raw_data['RollingReturns_1000_Pcnt'] = (
+        self.raw_data['% Rolling Returns 1000 days'] = (
             self.raw_data['Close'] / 
             self.raw_data['Prev Close'].rolling(
                 window = 1000, 
@@ -195,11 +196,11 @@ class StockData:
             ).agg(lambda rows: rows.iloc[0])
         )
 
-        self.raw_data['RollingReturns_200_Pcnt'] = (
-            (self.raw_data['RollingReturns_200_Pcnt'] ** (1 / 200)) - 1
+        self.raw_data['% Rolling Returns 200 days'] = (
+            (self.raw_data['% Rolling Returns 200 days'] ** (1 / 200)) - 1
         ).round(5) * 100
-        self.raw_data['RollingReturns_1000_Pcnt'] = (
-            (self.raw_data['RollingReturns_1000_Pcnt'] ** (1 / 1000)) - 1
+        self.raw_data['% Rolling Returns 1000 days'] = (
+            (self.raw_data['% Rolling Returns 1000 days'] ** (1 / 1000)) - 1
         ).round(5) * 100
 
         self._save_rolling_plots()
@@ -207,23 +208,30 @@ class StockData:
     def _save_rolling_plots(self):
         with sns.axes_style('dark'):
             plot_data = self.raw_data[
-                ['Date', 'RollingReturns_200_Pcnt', 'RollingReturns_1000_Pcnt']
+                ['Date', '% Rolling Returns 200 days', '% Rolling Returns 1000 days']
             ].iloc[-500:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
             sns.lineplot(
                 plot_data,
                 x = 'Date',
-                y = 'RollingReturns_200_Pcnt'
+                y = '% Rolling Returns 200 days'
             )
 
             plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "No change")
             plt.axhline(
-                y = plot_data['RollingReturns_200_Pcnt'].median(), 
+                y = self.raw_data['% Rolling Returns 200 days'].median(), 
+                linestyle = "dashdot",
+                linewidth = 1.5,
+                color = "goldenrod", 
+                label = "Overall median"
+            )
+            plt.axhline(
+                y = plot_data['% Rolling Returns 200 days'].median(), 
                 linestyle = "dashdot",
                 linewidth = 1.5,
                 color = "mediumseagreen", 
-                label = "Median return"
+                label = "Last 500 days median"
             )
             plt.legend()
             plt.xlabel("End date", fontsize = 12)
@@ -237,18 +245,25 @@ class StockData:
 
             plt.figure(figsize = (10, 5), dpi = 125)
             sns.lineplot(
-                plot_data[['Date', 'RollingReturns_1000_Pcnt']],
+                plot_data[['Date', '% Rolling Returns 1000 days']],
                 x = 'Date',
-                y = 'RollingReturns_1000_Pcnt'
+                y = '% Rolling Returns 1000 days'
             )
 
             plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "No change")
             plt.axhline(
-                y = plot_data['RollingReturns_1000_Pcnt'].median(), 
+                y = self.raw_data['% Rolling Returns 1000 days'].median(), 
+                linestyle = "dashdot",
+                linewidth = 1.5,
+                color = "goldenrod", 
+                label = "Overall median"
+            )
+            plt.axhline(
+                y = plot_data['% Rolling Returns 1000 days'].median(), 
                 linestyle = "dashdot",
                 linewidth = 1.5,
                 color = "mediumseagreen", 
-                label = "Median return"
+                label = "Last 500 days median"
             )
             plt.legend()
             plt.xlabel("End date", fontsize = 12)
@@ -316,14 +331,14 @@ class StockData:
 
     def _create_daily_candle_features(self):
         self.raw_data['Range'] = self.raw_data['High'] - self.raw_data['Low']
-        self.raw_data['IsGreen'] = (
+        self.raw_data['Is Green'] = (
             self.raw_data['Close'] >= self.raw_data['Prev Close']
         ).astype(np.int8)
-        self.last_candle = self.raw_data['IsGreen'].iloc[-1]
+        self.last_candle = self.raw_data['Is Green'].iloc[-1]
         self.last_candle_overall_pcnt = len(
             self.raw_data[
-                self.raw_data['IsGreen'] == self.last_candle
-            ]['IsGreen']
+                self.raw_data['Is Green'] == self.last_candle
+            ]['Is Green']
         ) / self.summary.num_records
 
         self._save_daily_candle_plots()
@@ -334,10 +349,10 @@ class StockData:
             sns.barplot(
                 data = self.raw_data.groupby(
                     self.raw_data['Date'].dt.quarter, as_index = False
-                )['IsGreen'].value_counts(normalize = True),
+                )['Is Green'].value_counts(normalize = True),
                 x = "Date",
                 y = "proportion",
-                hue = "IsGreen",
+                hue = "Is Green",
                 palette = "blend:indianred,mediumseagreen"
             )
             plt.hlines(
@@ -363,10 +378,10 @@ class StockData:
             sns.barplot(
                 data = self.raw_data.groupby(
                     self.raw_data['Date'].dt.year, as_index = False
-                )['IsGreen'].value_counts(normalize = True),
+                )['Is Green'].value_counts(normalize = True),
                 x = "Date",
                 y = "proportion",
-                hue = "IsGreen",
+                hue = "Is Green",
                 palette = "blend:indianred,mediumseagreen"
             )
             plt.hlines(
@@ -392,23 +407,23 @@ class StockData:
             plt.close()
     
     def _create_streak_features(self):
-        self.raw_data["StreakIndex"] = (self.raw_data["IsGreen"] != self.raw_data["IsGreen"].shift(1)).cumsum()
-        self.raw_data["Streak"] = self.raw_data.groupby("StreakIndex").cumcount() + 1
+        self.raw_data["Streak Index"] = (self.raw_data["Is Green"] != self.raw_data["Is Green"].shift(1)).cumsum()
+        self.raw_data["Streak"] = self.raw_data.groupby("Streak Index").cumcount() + 1
         self.candle_streak = self.raw_data['Streak'].iloc[-1]
-        si = self.raw_data['StreakIndex'].iloc[-1]
-        curr_si = self.raw_data.loc[self.raw_data['StreakIndex'] == si, ['Prev Close', 'Close']]
+        si = self.raw_data['Streak Index'].iloc[-1]
+        curr_si = self.raw_data.loc[self.raw_data['Streak Index'] == si, ['Prev Close', 'Close']]
         self.curr_streak_returns = (curr_si['Close'].iloc[-1] / curr_si['Prev Close'].iloc[0]) - 1
 
         max_streaks = self.raw_data.groupby(
-            ['StreakIndex', 'IsGreen'], 
+            ['Streak Index', 'Is Green'], 
             as_index = False
         )['Streak'].max()
 
         self.streak_cont_prob = max_streaks[
-            (max_streaks['IsGreen'] == self.last_candle) &
+            (max_streaks['Is Green'] == self.last_candle) &
             (max_streaks['Streak'] > self.candle_streak)
         ].shape[0] / max_streaks[
-            (max_streaks['IsGreen'] == self.last_candle) &
+            (max_streaks['Is Green'] == self.last_candle) &
             (max_streaks['Streak'] >= self.candle_streak)
         ].shape[0]
 
@@ -418,12 +433,12 @@ class StockData:
         with sns.axes_style('dark'):
             plt.figure(figsize = (10, 5), dpi = 125)
             sns.barplot(
-                max_streaks[max_streaks['IsGreen'] == 1]['Streak'].value_counts(normalize = True).sort_index(),
+                max_streaks[max_streaks['Is Green'] == 1]['Streak'].value_counts(normalize = True).sort_index(),
                 color = "mediumseagreen",
                 label = "Green candles"
             )
             sns.barplot(
-                max_streaks[max_streaks['IsGreen'] == 0]['Streak'].value_counts(normalize = True).mul(-1).sort_index(),
+                max_streaks[max_streaks['Is Green'] == 0]['Streak'].value_counts(normalize = True).mul(-1).sort_index(),
                 color = "indianred",
                 label = "Red candles"
             )
@@ -442,7 +457,7 @@ class StockData:
         sp_col_names = []
 
         for sp_wins in sp_ma_periods:
-            col_name = f"MA-S ({min(sp_wins)}, {max(sp_wins)}, {len(sp_wins)})"
+            col_name = f"MA-S ({min(sp_wins)}-{max(sp_wins)}-{len(sp_wins)})"
             self.raw_data[col_name] = spearman_over_ma(
                 self.raw_data['Close'],
                 sp_wins
@@ -494,6 +509,41 @@ class StockData:
                     bbox_inches = "tight"
                 )
                 plt.close()
+
+    def _create_ath_features(self):
+        self.raw_data['ATH'] = self.raw_data['Close'].cummax()
+        self.raw_data['% Down from ATH'] = (
+            (self.raw_data['Close'] - self.raw_data['ATH']) /
+            self.raw_data['ATH']
+        ).round(5) * 100
+
+        self.ath_hits_1000_days = (self.raw_data['% Down from ATH'].iloc[-1000:] == 0).sum()
+        self.last_ath_date = self.raw_data.loc[
+            self.raw_data['% Down from ATH'] == 0, 'Date'
+        ].iloc[-1]
+        self._save_ath_plots()
+
+    def _save_ath_plots(self):
+        with sns.axes_style('dark'):
+            plot_data = self.raw_data[['Date', '% Down from ATH']].iloc[-1000:]
+
+            plt.figure(figsize = (10, 5), dpi = 125)
+            sns.lineplot(
+                plot_data,
+                x = 'Date',
+                y = '% Down from ATH'
+            )
+
+            plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "ATH")
+            plt.legend()
+            plt.xlabel("Date", fontsize = 12)
+            plt.ylabel("Down from ATH (%)", fontsize = 12)
+            plt.title(f"{self.symbol} - Drawdown from ATH", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Drawdown_ATH.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
 
 def get_correlation_report(
     close_prices: list[pd.DataFrame], 

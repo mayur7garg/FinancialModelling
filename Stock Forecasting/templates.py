@@ -108,7 +108,11 @@ def create_stock_report(
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
         candle_streak = stock_data.candle_streak,
         curr_streak_returns = f"{stock_data.curr_streak_returns:.2%}",
-        streak_cont_prob = f"{stock_data.streak_cont_prob:.1%}"
+        streak_cont_prob = f"{stock_data.streak_cont_prob:.1%}",
+        curr_pcnt_down_ath = f"{stock_data.raw_data['% Down from ATH'].iloc[-1]:.2f}%",
+        max_pcnt_down_ath = f"{stock_data.raw_data['% Down from ATH'].min():.2f}%",
+        ath_hits_1000_days = stock_data.ath_hits_1000_days,
+        last_ath_date = f"{stock_data.last_ath_date:%A, %B %d, %Y}"
     )
 
     with page_out_path.joinpath(f"{stock_data.symbol}.html").open('w', encoding = 'utf-8') as f:
