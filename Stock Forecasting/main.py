@@ -17,7 +17,7 @@ for symbol in STOCK_SYMBOLS:
     stock_data = StockData(
         symbol, 
         CONFIG.NSE_DATA_DIR, 
-        CONFIG.EPS_DATA_DIR,
+        CONFIG.COMPANY_DATA_DIR,
         CONFIG.IMAGES_OUT_DIR,
         is_data_updated
     )

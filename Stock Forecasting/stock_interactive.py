@@ -50,7 +50,7 @@ def __(CONFIG, StockData, symbol):
     stock_data = StockData(
         symbol.value, 
         CONFIG.NSE_DATA_DIR, 
-        CONFIG.EPS_DATA_DIR,
+        CONFIG.COMPANY_DATA_DIR,
         CONFIG.IMAGES_OUT_DIR,
         False
     )

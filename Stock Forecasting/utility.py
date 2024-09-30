@@ -11,9 +11,9 @@ class Config:
             f"{self.NSE_DATA_DIR = } | Valid: {self.NSE_DATA_DIR.exists() & self.NSE_DATA_DIR.is_dir()}"
         )
 
-        self.EPS_DATA_DIR = Path(conf_dict['eps_data_dir'])
+        self.COMPANY_DATA_DIR = Path(conf_dict['company_data_dir'])
         print(
-            f"{self.EPS_DATA_DIR = } | Valid: {self.EPS_DATA_DIR.exists() & self.EPS_DATA_DIR.is_dir()}"
+            f"{self.COMPANY_DATA_DIR = } | Valid: {self.COMPANY_DATA_DIR.exists() & self.COMPANY_DATA_DIR.is_dir()}"
         )
 
         self.INDEX_TEMPLATE = Path(conf_dict['index_template'])

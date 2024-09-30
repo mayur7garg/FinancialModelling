@@ -1,6 +1,6 @@
 {
     "nse_data_dir": "../data/NSE",
-    "eps_data_dir": "../data/Screener.in/EPS",
+    "company_data_dir": "../data/CompanyData",
     "index_template": "templates/index_template.html",
     "stock_report_template": "templates/stock_report_template.html",
     "index_path": ".."

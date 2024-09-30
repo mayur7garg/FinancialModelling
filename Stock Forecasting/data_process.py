@@ -41,7 +41,7 @@ class StockData:
         self,
         symbol: str,
         stock_data_dir: Path,
-        eps_data_dir: Path,
+        company_data_dir: Path,
         image_out_path: Path,
         reload_data: bool = False
     ) -> None:
@@ -52,7 +52,7 @@ class StockData:
         if reload_data or (not (self.consolidated_data_path.exists() and self.consolidated_data_path.is_file())):
             self.raw_data = self.consolidate_data(
                 stock_data_dir,
-                eps_data_dir
+                company_data_dir
             )
             self.raw_data.to_parquet(self.consolidated_data_path, index = False)
         else:
@@ -73,7 +73,7 @@ class StockData:
     def consolidate_data(
             self,
             stock_data_dir: Path,
-            eps_data_dir: Path
+            company_data_dir: Path
         ) -> pd.DataFrame:
         print(f"\nReloading data for '{self.symbol}'...")
 
@@ -108,7 +108,7 @@ class StockData:
                 "VWAP", "52W H", "52W L", "Volume", "Value", "Num Trades"
             ]
 
-            eps_file = eps_data_dir.joinpath(f"{self.symbol}.csv")
+            eps_file = company_data_dir.joinpath("EPS", f"{self.symbol}.csv")
 
             if eps_file.exists():
                 eps_df = pd.read_csv(eps_file)
@@ -142,6 +142,33 @@ class StockData:
                 col_names.append("PE")
             
             hist_df.columns = col_names
+
+            stock_split_file = company_data_dir.joinpath("StockSplit", f"{self.symbol}.csv")
+
+            if stock_split_file.exists():
+                stock_split_df = pd.read_csv(stock_split_file)
+
+                stock_split_df["RecordDate"] = pd.to_datetime(
+                    stock_split_df["RecordDate"],
+                    format = "%d-%m-%Y"
+                )
+                stock_split_df['StockMultiplier'] = 1 / stock_split_df['StockMultiplier'].cumprod()
+
+                price_multiplier_df = pd.merge(
+                    hist_df[['Date']], 
+                    stock_split_df, 
+                    how = "left", 
+                    left_on = "Date", 
+                    right_on = "RecordDate"
+                )
+
+                price_multiplier_df['StockMultiplier'] = price_multiplier_df['StockMultiplier'].bfill().fillna(1)
+                hist_df['Prev Close'] = hist_df['Prev Close'] * price_multiplier_df['StockMultiplier']
+
+                price_multiplier_df['StockMultiplier'] = price_multiplier_df['StockMultiplier'].shift(-1).fillna(1)
+
+                for col in ["Open", "High", "Low", "LTP", "Close", "VWAP"]:
+                    hist_df[col] = hist_df[col] * price_multiplier_df['StockMultiplier']
 
             print(f"Loaded {hist_df.shape[0]} records from {len(files)} files with data from {hist_df['Date'].min().date()} to {hist_df['Date'].max().date()}.")
             return hist_df
