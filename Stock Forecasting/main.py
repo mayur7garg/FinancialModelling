@@ -23,9 +23,15 @@ for symbol in STOCK_SYMBOLS:
     )
     stock_data.create_features(
         performance_periods = [5, 15, 50, 200, 1000],
+        ma_periods = [15, 50, 200],
         sp_ma_periods = [list(range(1, 16)), list(range(5, 101, 5))]
     )
-    templates.create_stock_report(CONFIG.STOCK_REPORT_TEMPLATE, CONFIG.PAGES_OUT_DIR, stock_data)
+    templates.create_stock_report(
+        CONFIG.STOCK_REPORT_TEMPLATE, 
+        CONFIG.PAGES_OUT_DIR, 
+        stock_data,
+        ma_periods = [15, 50, 200]
+    )
 
     summaries.append(stock_data.summary)
     close_prices.append(

@@ -17,6 +17,7 @@ class StockSummary:
     end_date: date
     last_close: float
     has_PE: bool
+    last_PE: float
 
 @dataclass
 class CorrelationReport:
@@ -32,9 +33,10 @@ class PerformanceReport:
     start_date: date
     net_returns: float
     avg_daily_returns: float
-    avg_close: float
+    median_close: float
     lowest_close: float
     hightest_close: float
+    median_PE: float
 
 class StockData:
     def __init__(
@@ -59,6 +61,7 @@ class StockData:
             self.raw_data = pd.read_parquet(self.consolidated_data_path)
 
         self.last_close = self.raw_data['Close'].iloc[-1]
+        has_PE = 'PE' in self.raw_data.columns
 
         self.summary = StockSummary(
             self.symbol,
@@ -66,7 +69,8 @@ class StockData:
             self.raw_data['Date'].min().date(),
             self.raw_data['Date'].max().date(),
             self.last_close,
-            'PE' in self.raw_data.columns
+            has_PE,
+            self.raw_data['PE'].iloc[-1] if has_PE else 0
         )
         self.perf_reports: list[PerformanceReport] = []
 
@@ -178,9 +182,11 @@ class StockData:
     def create_features(
         self, 
         performance_periods: list[int],
+        ma_periods: list[int],
         sp_ma_periods: list[list[int]]
     ):
         self._create_performance_features(performance_periods)
+        self._create_ma_features(ma_periods)
         self._create_rolling_features()
         self._create_historical_features()
         self._create_daily_candle_features()
@@ -200,11 +206,51 @@ class StockData:
                     period_df['Date'].min().date(),
                     net_returns - 1,
                     (net_returns ** (1 / period_size)) - 1,
-                    period_df['Close'].mean(),
+                    period_df['Close'].median(),
                     period_df['Close'].min(),
-                    period_df['Close'].max()
+                    period_df['Close'].max(),
+                    period_df['PE'].median() if self.summary.has_PE else 0
                 )
             )
+
+    def _create_ma_features(self, ma_periods: list[int]):
+        for period in ma_periods:
+            self.raw_data[f'MA {period} days'] = self.raw_data['Close'].rolling(
+                window = period,
+                min_periods = 1
+            ).mean()
+        self._save_ma_plots(ma_periods)
+
+    def _save_ma_plots(self, ma_periods: list[int]):
+        with sns.axes_style('dark'):
+            plot_data = self.raw_data.iloc[-1000:]
+
+            plt.figure(figsize = (10, 5), dpi = 125)
+
+            for period, color in zip(
+                ma_periods,
+                ['mediumseagreen', 'goldenrod', 'indianred']
+            ):
+                col_name = f'MA {period} days'
+                sns.lineplot(
+                    plot_data,
+                    x = 'Date',
+                    y = col_name,
+                    label = col_name,
+                    c = color
+                )
+
+            plt.axhline(y = self.last_close, linestyle = "dashdot", label = "Last Close Price")
+
+            plt.legend()
+            plt.xlabel("Date", fontsize = 12)
+            plt.ylabel("Close Price", fontsize = 12)
+            plt.title(f"{self.symbol} - Moving averages of Close Price", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_MA_Close_Price.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
     
     def _create_rolling_features(self):
         self.raw_data['% Rolling Returns 200 days'] = (

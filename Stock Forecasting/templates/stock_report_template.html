@@ -45,7 +45,7 @@
                         {perf_avg_daily_returns}
                     </tr>
                     <tr>
-                        {perf_avg_close}
+                        {perf_median_close}
                     </tr>
                     <tr>
                         {perf_lowest_close}
@@ -53,8 +53,24 @@
                     <tr>
                         {perf_highest_close}
                     </tr>
+                    <tr class="{PE_available}">
+                        {perf_median_PE}
+                    </tr>
                 </tbody>
             </table>
+        </div>
+        <hr>
+    </div>
+    <div>
+        <h4 class="px-2 pb-2 text-center">Moving averages</h4>
+        <div class="row ps-2 row-section">
+            <div class="col-lg-12 col-xl-3 vert-center">
+                <p>Last close price: <span class="metric">{last_close}</span></p>
+                {ma_values}
+            </div>
+            <div class="col-lg-12 col-xl-9 text-center">
+                <img src="../images/{symbol}_MA_Close_Price.png" class="plot_img">
+            </div>
         </div>
         <hr>
     </div>
@@ -74,8 +90,6 @@
         <h4 class="px-2 pb-2 text-center">Distribution of Close price</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-3 vert-center">
-                <p>Last close price: <span class="metric">{last_close}</span></p>
-                <p>Last candle: <span class="metric {last_candle_color}">{last_candle}</span></p>
                 <p>{first_hit_info}</p>
                 <p>Since then, it has closed over this price <span class="metric">{pcnt_hits_of_last_close}</span> of
                     times
@@ -91,6 +105,7 @@
         <h4 class="px-2 pb-2 text-center">Streaks by candle types</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-3 vert-center">
+                <p>Last candle: <span class="metric {last_candle_color}">{last_candle}</span></p>
                 <p>Overall percentage of
                     <span class="metric {last_candle_color}">{last_candle}</span> candles:
                     <span class="metric">{last_candle_overall_pcnt}</span>
