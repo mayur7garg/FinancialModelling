@@ -50,11 +50,16 @@ def create_index(
         period_losers = []
 
         for period in performance_periods:
+            period_gainer = perf_results[period][-i - 1]
+            change_color = 'color-green' if period_gainer[0] >= 0 else 'color-red'
             period_gainers.append(
-                f'<td>{perf_results[period][-i - 1][1]} <span class="color-green metric">({perf_results[period][-i - 1][0]:.2%})</span></td>'
+                f'<td>{period_gainer[1]} <span class="{change_color} metric">({period_gainer[0]:.2%})</span></td>'
             )
+
+            period_loser = perf_results[period][i]
+            change_color = 'color-green' if period_loser[0] >= 0 else 'color-red'
             period_losers.append(
-                f'<td>{perf_results[period][i][1]} <span class="color-red metric">({perf_results[period][i][0]:.2%})</span></td>'
+                f'<td>{period_loser[1]} <span class="{change_color} metric">({period_loser[0]:.2%})</span></td>'
             )
         
         top_gainers.append(

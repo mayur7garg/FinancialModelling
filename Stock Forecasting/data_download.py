@@ -51,7 +51,7 @@ def update_hist_eq_data(
     for c_f in csv_files:
         c_f_last_date = datetime.strptime(re.findall(last_date_ptrn, c_f.stem)[-1], "%d-%m-%Y").date()
         
-        if (c_f_last_date.day == 31) and (c_f_last_date.month == 12):
+        if ((c_f_last_date.day == 31) and (c_f_last_date.month == 12)) or (c_f_last_date == END_DATE):
             completed_years.add(c_f_last_date.year)
         else:
             print(f"Removing file: {c_f}")
