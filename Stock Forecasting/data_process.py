@@ -215,10 +215,16 @@ class StockData:
 
     def _create_ma_features(self, ma_periods: list[int]):
         for period in ma_periods:
-            self.raw_data[f'MA {period} days'] = self.raw_data['Close'].rolling(
+            col_name = f'MA {period} days'
+
+            self.raw_data[col_name] = self.raw_data['Close'].rolling(
                 window = period,
                 min_periods = 1
             ).mean()
+            self.raw_data[f'% Change from {period} MA'] = (
+                (self.raw_data['Close'] - self.raw_data[col_name]) /
+                self.raw_data[col_name]
+            ).round(5) * 100
         self._save_ma_plots(ma_periods)
 
     def _save_ma_plots(self, ma_periods: list[int]):
@@ -251,6 +257,28 @@ class StockData:
                 bbox_inches = "tight"
             )
             plt.close()
+
+            for period, color in zip(
+                ma_periods,
+                ['mediumseagreen', 'goldenrod', 'indianred']
+            ):
+                plt.figure(figsize = (10, 5), dpi = 125)
+                sns.lineplot(
+                    plot_data,
+                    x = 'Date',
+                    y = f'% Change from {period} MA'
+                )
+
+                plt.axhline(y = 0, linestyle = "dashdot", color = color, label = f'MA {period} days')
+                plt.legend()
+                plt.xlabel("Date", fontsize = 12)
+                plt.ylabel(f"Change from {period} MA (%)", fontsize = 12)
+                plt.title(f"{self.symbol} - Change from {period} MA", fontsize = 14)
+                plt.savefig(
+                    self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Change_MA_{period}.png"), 
+                    bbox_inches = "tight"
+                )
+                plt.close()
     
     def _create_rolling_features(self):
         self.raw_data['% Rolling Returns 200 days'] = (
@@ -391,6 +419,8 @@ class StockData:
 
                 xticks.append(int(kde_x))
 
+            plt.axvline(x = self.last_close, linestyle = "dashdot", color = "indianred", label = 'Last Close')
+            plt.legend()
             plt.xlim((0, None))
             plt.xticks(xticks, rotation = 75, fontsize = 8)
             plt.xlabel("Close Price", fontsize = 12)

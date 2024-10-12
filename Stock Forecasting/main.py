@@ -7,9 +7,10 @@ from data_process import StockData, get_correlation_report
 
 CONFIG = Config(Path("config.json"))
 STOCK_SYMBOLS = CONFIG.get_all_stock_symbols()
+PERF_PERIODS = [5, 15, 50, 200, 1000]
 
 summaries = []
-close_prices = []
+perf_reports = []
 
 for symbol in STOCK_SYMBOLS:
     is_data_updated = update_hist_eq_data(symbol, CONFIG.NSE_DATA_DIR)
@@ -22,7 +23,7 @@ for symbol in STOCK_SYMBOLS:
         is_data_updated
     )
     stock_data.create_features(
-        performance_periods = [5, 15, 50, 200, 1000],
+        performance_periods = PERF_PERIODS,
         ma_periods = [15, 50, 200],
         sp_ma_periods = [list(range(1, 16)), list(range(5, 101, 5))]
     )
@@ -34,15 +35,12 @@ for symbol in STOCK_SYMBOLS:
     )
 
     summaries.append(stock_data.summary)
-    close_prices.append(
-        stock_data.raw_data[["Date", "Close"]].rename(
-            columns = {"Close": symbol}
-        ).set_index("Date")
-    )
+    perf_reports.append(stock_data.perf_reports)
 
 templates.create_index(
     CONFIG.INDEX_TEMPLATE, 
     CONFIG.INDEX_PATH, 
     summaries,
-    get_correlation_report(close_prices)
+    perf_reports,
+    PERF_PERIODS[::2]
 )

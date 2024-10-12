@@ -33,25 +33,34 @@
         </table>
     </div>
     <hr>
-    <h3 class="px-2 text-center">Correlation report</h3>
-    <div class="px-2 pb-2 text-center">
-        Correlation values are based on last
-        <span class="metric">{corr_num_records}</span> closing prices from
-        <span class="metric">{corr_start_date}</span> to <span class="metric">{corr_end_date}.</span>
-    </div>
+    <h3 class="px-2 text-center">Top gainers</h3>
     <div class="table-responsive-lg px-2">
         <table class="table table-hover">
-            <caption>Correlated symbols</caption>
+            <caption>Stocks with highest net returns</caption>
             <thead class="table-dark">
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Symbol</th>
-                    <th scope="col">Least correlated</th>
-                    <th scope="col">Most correlated</th>
+                    {perf_period_size}
                 </tr>
             </thead>
             <tbody>
-                {corr_summaries}
+                {top_gainers}
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <h3 class="px-2 text-center">Top losers</h3>
+    <div class="table-responsive-lg px-2">
+        <table class="table table-hover">
+            <caption>Stocks with lowest net returns</caption>
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    {perf_period_size}
+                </tr>
+            </thead>
+            <tbody>
+                {top_losers}
             </tbody>
         </table>
     </div>

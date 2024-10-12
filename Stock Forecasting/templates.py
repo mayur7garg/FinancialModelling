@@ -1,21 +1,24 @@
 from datetime import date
 from pathlib import Path
 
-from data_process import StockSummary, StockData, CorrelationReport
+from data_process import StockSummary, PerformanceReport, StockData
 
 def create_index(
     template_path: Path,
     out_path: Path,
     summaries: list[StockSummary],
-    corr_report: CorrelationReport
+    perf_reports: list[list[PerformanceReport]],
+    performance_periods: list[int]
 ):
     with template_path.open('r', encoding = "utf-8") as f:
         index = f.read()
     
     stock_summaries = []
-    corr_summaries = []
+    perf_results = {p: [] for p in performance_periods}
 
-    for summ_i, summary in enumerate(summaries, start = 1):
+    for summ_i, (summary, stock_perfs) in enumerate(
+        zip(summaries, perf_reports), start = 1
+    ):
         stock_summaries.append(
             f'''<tr>
     <th scope="row">#{summ_i}</th>
@@ -27,21 +30,50 @@ def create_index(
     <td>{round(summary.last_PE, 2) if summary.has_PE else 'Not available'}</td>
 </tr>'''
         )
-        corr_summaries.append(
-            f'''<tr>
-    <th scope="row">#{summ_i}</th>
-    <td><a href="web/pages/{summary.symbol}.html">{summary.symbol}</a></td>
-    <td>{corr_report.min_corrs[summary.symbol][0]} <span class="color-red metric">({corr_report.min_corrs[summary.symbol][1]:.1%})</span></td>
-    <td>{corr_report.max_corrs[summary.symbol][0]} <span class="color-green metric">({corr_report.max_corrs[summary.symbol][1]:.1%})</span></td>
-</tr>'''
+
+        for perf_report in stock_perfs:
+            if perf_report.period_size in performance_periods:
+                perf_results[perf_report.period_size].append(
+                    (perf_report.net_returns, summary.symbol)
+                )
+
+    perf_period_size = []
+    top_gainers = []
+    top_losers = []
+
+    for period in performance_periods:
+        perf_results[period] = sorted(perf_results[period])
+        perf_period_size.append(f'<th scope="col">{period} Days</th>')
+
+    for i in range(3):
+        period_gainers = []
+        period_losers = []
+
+        for period in performance_periods:
+            period_gainers.append(
+                f'<td>{perf_results[period][-i - 1][1]} <span class="color-green metric">({perf_results[period][-i - 1][0]:.2%})</span></td>'
+            )
+            period_losers.append(
+                f'<td>{perf_results[period][i][1]} <span class="color-red metric">({perf_results[period][i][0]:.2%})</span></td>'
+            )
+        
+        top_gainers.append(
+            f'<tr>\n<th scope="row">#{i + 1}</th>\n' +
+            "\n".join(period_gainers) + 
+            "\n</tr>"
+        )
+
+        top_losers.append(
+            f'<tr>\n<th scope="row">#{i + 1}</th>\n' +
+            "\n".join(period_losers) + 
+            "\n</tr>"
         )
     
     index = index.format(
         stock_summaries = "\n".join(stock_summaries),
-        corr_num_records = corr_report.num_records,
-        corr_start_date  = f"{corr_report.start_date:%B %d, %Y}",
-        corr_end_date  = f"{corr_report.end_date:%B %d, %Y}",
-        corr_summaries = "\n".join(corr_summaries)
+        perf_period_size = "\n".join(perf_period_size),
+        top_gainers = "\n".join(top_gainers),
+        top_losers = "\n".join(top_losers)
     )
 
     with out_path.open('w', encoding = 'utf-8') as f:
