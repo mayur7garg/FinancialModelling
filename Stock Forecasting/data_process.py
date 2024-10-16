@@ -285,7 +285,7 @@ class StockData:
             self.raw_data['Close'] / 
             self.raw_data['Prev Close'].rolling(
                 window = 200, 
-                min_periods = 200
+                min_periods = 1
             ).agg(lambda rows: rows.iloc[0])
         )
 
@@ -293,15 +293,25 @@ class StockData:
             self.raw_data['Close'] / 
             self.raw_data['Prev Close'].rolling(
                 window = 1000, 
-                min_periods = 200
+                min_periods = 1
             ).agg(lambda rows: rows.iloc[0])
         )
 
         self.raw_data['% Rolling Returns 200 days'] = (
-            (self.raw_data['% Rolling Returns 200 days'] ** (1 / 200)) - 1
+            (self.raw_data['% Rolling Returns 200 days'] ** (
+                1 / self.raw_data['Prev Close'].rolling(
+                    window = 200, 
+                    min_periods = 1
+                ).count()
+            )) - 1
         ).round(5) * 100
         self.raw_data['% Rolling Returns 1000 days'] = (
-            (self.raw_data['% Rolling Returns 1000 days'] ** (1 / 1000)) - 1
+            (self.raw_data['% Rolling Returns 1000 days'] ** (
+                1 / self.raw_data['Prev Close'].rolling(
+                    window = 1000, 
+                    min_periods = 1
+                ).count()
+            )) - 1
         ).round(5) * 100
 
         self._save_rolling_plots()

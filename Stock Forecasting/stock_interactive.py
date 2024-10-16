@@ -57,6 +57,7 @@ def __(CONFIG, StockData, symbol):
 
     stock_data.create_features(
         performance_periods = [5, 15, 50, 200, 1000],
+        ma_periods = [15, 50, 200],
         sp_ma_periods = [list(range(1, 16)), list(range(5, 101, 5))]
     )
 
@@ -91,7 +92,7 @@ def __(pd, stock_data):
             "Start Date": [f"{perf.start_date:%B %d, %Y}" for perf in stock_data.perf_reports],
             "Net Returns": [f"{perf.net_returns:.2%}" for perf in stock_data.perf_reports],
             "Average Daily Return": [f"{perf.avg_daily_returns:.3%}" for perf in stock_data.perf_reports],
-            "Average Close Price": [f"{perf.avg_close:.2f}" for perf in stock_data.perf_reports],
+            "Median Close Price": [f"{perf.median_close:.2f}" for perf in stock_data.perf_reports],
             "Lowest Close Price": [f"{perf.lowest_close:.2f}" for perf in stock_data.perf_reports],
             "Highest Close Price": [f"{perf.hightest_close:.2f}" for perf in stock_data.perf_reports],
         }
