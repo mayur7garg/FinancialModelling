@@ -3,7 +3,7 @@ from pathlib import Path
 import templates
 from utility import Config
 from data_download import update_hist_eq_data
-from data_process import StockData, get_correlation_report
+from data_process import StockData
 
 CONFIG = Config(Path("config.json"))
 STOCK_SYMBOLS = CONFIG.get_all_stock_symbols()

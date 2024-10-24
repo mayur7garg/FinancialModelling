@@ -16,6 +16,7 @@ class StockSummary:
     start_date: date
     end_date: date
     last_close: float
+    last_change: float
     has_PE: bool
     last_PE: float
 
@@ -69,6 +70,7 @@ class StockData:
             self.raw_data['Date'].min().date(),
             self.raw_data['Date'].max().date(),
             self.last_close,
+            (self.raw_data['Close'].iloc[-1] / self.raw_data['Prev Close'].iloc[-1]) - 1,
             has_PE,
             self.raw_data['PE'].iloc[-1] if has_PE else 0
         )

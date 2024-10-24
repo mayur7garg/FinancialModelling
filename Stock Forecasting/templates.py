@@ -19,6 +19,7 @@ def create_index(
     for summ_i, (summary, stock_perfs) in enumerate(
         zip(summaries, perf_reports), start = 1
     ):
+        change_color = 'color-green' if summary.last_change >= 0 else 'color-red'
         stock_summaries.append(
             f'''<tr>
     <th scope="row">#{summ_i}</th>
@@ -26,7 +27,7 @@ def create_index(
     <td>{summary.start_date:%B %d, %Y}</td>
     <td>{summary.end_date:%B %d, %Y}</td>
     <td>{summary.num_records}</td>
-    <td>{summary.last_close}</td>
+    <td>{summary.last_close} <span class="{change_color} metric">({summary.last_change:.2%})</span></td>
     <td>{round(summary.last_PE, 2) if summary.has_PE else 'Not available'}</td>
 </tr>'''
         )
@@ -154,6 +155,7 @@ def create_stock_report(
         total_hits_of_last_close = stock_data.total_hits_of_last_close,
         pcnt_hits_of_last_close = f"{stock_data.pcnt_hit_of_last_close:.1%}",
         last_candle = last_candle,
+        last_change = f"{stock_data.summary.last_change:.2%}",
         last_candle_color = f"color-{last_candle.lower()}",
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
         candle_streak = stock_data.candle_streak,
