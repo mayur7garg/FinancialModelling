@@ -234,6 +234,7 @@ class StockData:
             plot_data = self.raw_data.iloc[-1000:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
+            plt.axhline(y = self.last_close, linestyle = "dashdot", label = "Last Close Price")
 
             for period, color in zip(
                 ma_periods,
@@ -247,8 +248,6 @@ class StockData:
                     label = col_name,
                     c = color
                 )
-
-            plt.axhline(y = self.last_close, linestyle = "dashdot", label = "Last Close Price")
 
             plt.legend()
             plt.xlabel("Date", fontsize = 12)
@@ -265,13 +264,14 @@ class StockData:
                 ['mediumseagreen', 'goldenrod', 'indianred']
             ):
                 plt.figure(figsize = (10, 5), dpi = 125)
+                plt.axhline(y = 0, linestyle = "dashdot", color = color, label = f'MA {period} days')
+
                 sns.lineplot(
                     plot_data,
                     x = 'Date',
                     y = f'% Change from {period} MA'
                 )
 
-                plt.axhline(y = 0, linestyle = "dashdot", color = color, label = f'MA {period} days')
                 plt.legend()
                 plt.xlabel("Date", fontsize = 12)
                 plt.ylabel(f"Change from {period} MA (%)", fontsize = 12)
@@ -325,11 +325,6 @@ class StockData:
             ].iloc[-500:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
-            sns.lineplot(
-                plot_data,
-                x = 'Date',
-                y = '% Rolling Returns 200 days'
-            )
 
             plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "No change")
             plt.axhline(
@@ -346,6 +341,13 @@ class StockData:
                 color = "mediumseagreen", 
                 label = "Last 500 days median"
             )
+
+            sns.lineplot(
+                plot_data,
+                x = 'Date',
+                y = '% Rolling Returns 200 days'
+            )
+
             plt.legend()
             plt.xlabel("End date", fontsize = 12)
             plt.ylabel("Average Daily Return (%)", fontsize = 12)
@@ -357,11 +359,6 @@ class StockData:
             plt.close()
 
             plt.figure(figsize = (10, 5), dpi = 125)
-            sns.lineplot(
-                plot_data[['Date', '% Rolling Returns 1000 days']],
-                x = 'Date',
-                y = '% Rolling Returns 1000 days'
-            )
 
             plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "No change")
             plt.axhline(
@@ -378,6 +375,13 @@ class StockData:
                 color = "mediumseagreen", 
                 label = "Last 500 days median"
             )
+
+            sns.lineplot(
+                plot_data[['Date', '% Rolling Returns 1000 days']],
+                x = 'Date',
+                y = '% Rolling Returns 1000 days'
+            )
+
             plt.legend()
             plt.xlabel("End date", fontsize = 12)
             plt.ylabel("Average Daily Return (%)", fontsize = 12)
@@ -643,13 +647,14 @@ class StockData:
             plot_data = self.raw_data[['Date', '% Down from ATH']].iloc[-1000:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
+            plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "ATH")
+            
             sns.lineplot(
                 plot_data,
                 x = 'Date',
                 y = '% Down from ATH'
             )
 
-            plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "ATH")
             plt.legend()
             plt.xlabel("Date", fontsize = 12)
             plt.ylabel("Down from ATH (%)", fontsize = 12)
