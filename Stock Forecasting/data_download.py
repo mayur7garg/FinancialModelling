@@ -32,7 +32,7 @@ def _download_hist_eq_data(
 
     if response.status_code == 200:
         filename = re.findall(FILENAME_PTRN, response.headers['content-disposition'])[0]
-        print(f"Downloaded '{filename}' from '{response.url}'.")
+        print(f"> Downloaded '{filename}' from '{response.url}'.")
         return filename, response.content.decode('utf-8')
 
     return None, None
@@ -41,12 +41,12 @@ def update_hist_eq_data(
     symbol: str,
     stock_data_dir: Path
 ):
+    print(f"\n{symbol}")
     stock_data_dir = stock_data_dir.joinpath(symbol)
     csv_files = list(stock_data_dir.glob(f"*{symbol}*.csv"))
     completed_years = set()
     last_date_ptrn = r"[0-9]{2}-[0-9]{2}-[0-9]{4}"
     data_updated = False
-    print(f"\nUpdating data for {symbol}...")
 
     for c_f in csv_files:
         c_f_last_date = datetime.strptime(re.findall(last_date_ptrn, c_f.stem)[-1], "%d-%m-%Y").date()
@@ -54,7 +54,7 @@ def update_hist_eq_data(
         if ((c_f_last_date.day == 31) and (c_f_last_date.month == 12)) or (c_f_last_date == END_DATE):
             completed_years.add(c_f_last_date.year)
         else:
-            print(f"Removing file: {c_f}")
+            print(f"> Removing file: {c_f}")
             c_f.unlink()
 
     with requests.Session() as sess:
@@ -74,6 +74,7 @@ def update_hist_eq_data(
                             f.write(data)
                             data_updated = True
                     else:
-                        print("Downloaded data was ignored since it was empty.")
+                        print("> Downloaded data was ignored since it was empty.")
     
+    print(f"> Data updated: {data_updated}")
     return data_updated
