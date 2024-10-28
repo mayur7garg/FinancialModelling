@@ -396,21 +396,60 @@ class StockData:
         self._get_first_hit_of_last_close()
         self._save_historical_plots()
 
-    def _get_first_hit_of_last_close(self):
-        all_hits = self.raw_data[self.raw_data["Close"] >= self.last_close]
-        self.total_hits_of_last_close = len(all_hits)
+    def _get_first_hit_of_last_close(self):        
+        total_hits = []
+        first_hits = []
+        last_hits = []
+        pcnt_hits = []
 
-        if self.total_hits_of_last_close > 0:
-            self.first_hit_of_last_close = all_hits["Date"].min().date()
-            self.pcnt_hit_of_last_close = (
-                self.total_hits_of_last_close / 
-                len(self.raw_data[self.raw_data["Date"].dt.date >= self.first_hit_of_last_close])
-            )
-        else:
-            self.pcnt_hit_of_last_close = 0
+        for row in self.raw_data.itertuples():
+            row_df = self.raw_data[self.raw_data['Date'] <= row.Date]
+            all_hits = row_df["Date"][row_df["Close"] >= row.Close]
+            total_hit = len(all_hits)
+            first_hit = all_hits.min().date()
+            last_hit = all_hits.iloc[-2].date() if total_hit > 1 else first_hit
+            pcnt_hit = total_hit / len(row_df[row_df['Date'].dt.date >= first_hit])
+            
+            total_hits.append(total_hit)
+            first_hits.append(first_hit)
+            last_hits.append(last_hit)
+            pcnt_hits.append(pcnt_hit)
+        
+        self.raw_data['Total hits of Close'] = total_hits
+        self.raw_data['First hit of Close'] = first_hits
+        self.raw_data['Last hit of Close'] = last_hits
+        self.raw_data['Pcnt hits of Close'] = pcnt_hits
     
     def _save_historical_plots(self):
         with sns.axes_style('dark'):
+            plt.figure(figsize = (10, 5), dpi = 125)
+            plot_data = self.raw_data.iloc[-500:]
+
+            sns.lineplot(
+                x = plot_data['Date'],
+                y = pd.to_timedelta(
+                    plot_data['Date'].dt.date - plot_data['First hit of Close']
+                ).dt.days,
+                label = "First hit"
+            )
+            sns.lineplot(
+                x = plot_data['Date'],
+                y = pd.to_timedelta(
+                    plot_data['Date'].dt.date - plot_data['Last hit of Close']
+                ).dt.days,
+                label = "Last hit"
+            )
+
+            plt.legend()
+            plt.xlabel("Date", fontsize = 12)
+            plt.ylabel("Calendar days ago", fontsize = 12)
+            plt.title(f"{self.symbol} - Days since hit of Close price", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Days_First_Last_Hit.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
+
             plt.figure(figsize = (10, 5), dpi = 125)
 
             kde_data_x, kde_data_y = sns.kdeplot(

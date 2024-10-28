@@ -1,9 +1,14 @@
+from argparse import ArgumentParser
 from pathlib import Path
 
 import templates
 from utility import Config
 from data_download import update_hist_eq_data
 from data_process import StockData
+
+parser = ArgumentParser(prog = "Financial Modelling")
+parser.add_argument("-nu", "--no-update", action = "store_true")
+args = parser.parse_args()
 
 CONFIG = Config(Path("config.json"))
 STOCK_SYMBOLS = CONFIG.get_all_stock_symbols()
@@ -13,7 +18,7 @@ summaries = []
 perf_reports = []
 
 for symbol in STOCK_SYMBOLS:
-    is_data_updated = update_hist_eq_data(symbol, CONFIG.NSE_DATA_DIR)
+    is_data_updated = False if args.no_update else update_hist_eq_data(symbol, CONFIG.NSE_DATA_DIR)
 
     stock_data = StockData(
         symbol, 

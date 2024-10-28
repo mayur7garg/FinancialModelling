@@ -104,9 +104,11 @@
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-3 vert-center">
                 <p>{first_hit_info}</p>
-                <p>Since then, it has closed over this price <span class="metric">{pcnt_hits_of_last_close}</span> of
+                <p class="{is_ATH}">Since then, it has closed over this price <span
+                        class="metric">{pcnt_hits_of_last_close}</span> of
                     times
                     which is <span class="metric">{total_hits_of_last_close}</span> trading days.</p>
+                <p class="{is_ATH}">{last_hit_info}</p>
             </div>
             <div class="col-lg-12 col-xl-9 text-center">
                 <img src="../images/{symbol}_CDF_Close_Price.png" class="plot_img">
@@ -166,16 +168,16 @@
         <h4 class="px-2 pb-2 text-center">Drawdown from ATH</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-3 vert-center">
-                <p>Current down from ATH: 
+                <p>Current down from ATH:
                     <span class="metric color-red">{curr_pcnt_down_ath}</span>
                 </p>
-                <p>Most down from ATH: 
+                <p>Most down from ATH:
                     <span class="metric color-red">{max_pcnt_down_ath}</span>
                 </p>
-                <p>ATH hits in last 1000 days: 
+                <p>ATH hits in last 1000 days:
                     <span class="metric color-green">{ath_hits_1000_days}</span>
                 </p>
-                <p>ATH was last hit on  
+                <p>ATH was last hit on
                     <span class="metric">{last_ath_date}</span>.
                 </p>
             </div>

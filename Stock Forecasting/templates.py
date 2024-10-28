@@ -129,10 +129,14 @@ def create_stock_report(
             f'<p>Average of last {period} days: <span class="metric">{stock_data.raw_data[col_name].iloc[-1]:.2f}</span></p>'
         )
 
-    if stock_data.total_hits_of_last_close > 0:
-        first_hit_info = f'{stock_data.symbol} first closed above its last close price on <span class="metric">{stock_data.first_hit_of_last_close:%A, %B %d, %Y}</span> which was <span class="metric">{(date.today() - stock_data.first_hit_of_last_close).days}</span> days ago.'
+    total_hits_of_last_close = stock_data.raw_data['Total hits of Close'].iloc[-1]
+
+    if total_hits_of_last_close > 1:
+        first_hit_info = f'{stock_data.symbol} first closed above its last close price on <span class="metric">{stock_data.raw_data["First hit of Close"].iloc[-1]:%A, %B %d, %Y}</span> which was <span class="metric">{(date.today() - stock_data.raw_data["First hit of Close"].iloc[-1]).days}</span> days ago.'
+        last_hit_info = f'Previously, {stock_data.symbol} closed above its last close price on <span class="metric">{stock_data.raw_data["Last hit of Close"].iloc[-1]:%A, %B %d, %Y}</span> which was <span class="metric">{(date.today() - stock_data.raw_data["Last hit of Close"].iloc[-1]).days}</span> days ago.'
     else:
         first_hit_info = f"This is the first time {stock_data.symbol} has closed at this high a price."
+        last_hit_info = ""
 
     report = report.format(
         symbol = stock_data.symbol,
@@ -152,8 +156,10 @@ def create_stock_report(
         last_close = stock_data.last_close,
         ma_values = "\n".join(ma_values),
         first_hit_info = first_hit_info,
-        total_hits_of_last_close = stock_data.total_hits_of_last_close,
-        pcnt_hits_of_last_close = f"{stock_data.pcnt_hit_of_last_close:.1%}",
+        is_ATH = "" if total_hits_of_last_close > 1 else "is_ATH",
+        total_hits_of_last_close = total_hits_of_last_close,
+        pcnt_hits_of_last_close = f"{stock_data.raw_data['Pcnt hits of Close'].iloc[-1]:.1%}",
+        last_hit_info = last_hit_info,
         last_candle = last_candle,
         last_change = f"{stock_data.summary.last_change:.2%}",
         last_candle_color = f"color-{last_candle.lower()}",
