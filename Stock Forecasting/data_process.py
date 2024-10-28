@@ -430,22 +430,24 @@ class StockData:
                 y = pd.to_timedelta(
                     plot_data['Date'].dt.date - plot_data['First hit of Close']
                 ).dt.days,
-                label = "First hit"
+                label = "Max period",
+                color = "indianred",
             )
             sns.lineplot(
                 x = plot_data['Date'],
                 y = pd.to_timedelta(
                     plot_data['Date'].dt.date - plot_data['Last hit of Close']
                 ).dt.days,
-                label = "Last hit"
+                label = "Min period",
+                color = "mediumseagreen",
             )
 
             plt.legend()
             plt.xlabel("Date", fontsize = 12)
-            plt.ylabel("Calendar days ago", fontsize = 12)
-            plt.title(f"{self.symbol} - Days since hit of Close price", fontsize = 14)
+            plt.ylabel("Calendar days", fontsize = 12)
+            plt.title(f"{self.symbol} - Period of non positive return", fontsize = 14)
             plt.savefig(
-                self.image_out_path.joinpath(f"{self.symbol}_Days_First_Last_Hit.png"), 
+                self.image_out_path.joinpath(f"{self.symbol}_Period_of_No_Return.png"), 
                 bbox_inches = "tight"
             )
             plt.close()
