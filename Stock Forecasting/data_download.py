@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 START_DATE = date(2020, 1, 1)
 RUN_DATE = datetime.now(tz = ZoneInfo("Asia/Calcutta"))
 
-if RUN_DATE.hour >= 19:
+if RUN_DATE.hour >= 20:
     END_DATE = RUN_DATE.date()
 else:
     END_DATE = RUN_DATE.date() - timedelta(days = 1)
