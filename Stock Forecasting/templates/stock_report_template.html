@@ -70,7 +70,7 @@
                 {ma_values}
             </div>
             <div class="col-lg-12 col-xl-9 text-center">
-                <img src="../images/{symbol}_MA_Close_Price.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_MA_Close_Price.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -79,10 +79,10 @@
         <h4 class="px-2 pb-2 text-center">Change from moving averages</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Pcnt_Change_MA_15.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Pcnt_Change_MA_15.png" class="plot_img">
             </div>
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Pcnt_Change_MA_200.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Pcnt_Change_MA_200.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -91,10 +91,10 @@
         <h4 class="px-2 pb-2 text-center">Average daily rolling returns</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Avg_Rolling_Returns_200.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Avg_Rolling_Returns_200.png" class="plot_img">
             </div>
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Avg_Rolling_Returns_1000.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Avg_Rolling_Returns_1000.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -111,7 +111,7 @@
                 <p class="{is_ATH}">{last_hit_info}</p>
             </div>
             <div class="col-lg-12 col-xl-9 text-center">
-                <img src="../images/{symbol}_CDF_Close_Price.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_CDF_Close_Price.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -133,9 +133,15 @@
                     <span class="metric {last_candle_color}">{curr_streak_returns}</span>
                 </p>
                 <p>Probability of streak continuing: <span class="metric">{streak_cont_prob}</span></p>
+                <p>Longest streak of
+                    <span class="metric {last_candle_color}">{last_candle}</span> candles:
+                    <span class="metric">{longest_candle_streak}</span> trading days from
+                    <span class="metric">{longest_candle_streak_start}</span> to
+                    <span class="metric">{longest_candle_streak_end}</span>
+                </p>
             </div>
             <div class="col-lg-12 col-xl-9 text-center">
-                <img src="../images/{symbol}_Pcnt_Streak_Length.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Pcnt_Streak_Length.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -144,10 +150,10 @@
         <h4 class="px-2 pb-2 text-center">Proportion by candle types</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Pcnt_Candles_Quarter.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Pcnt_Candles_Quarter.png" class="plot_img">
             </div>
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Pcnt_Candles_Year.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Pcnt_Candles_Year.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -156,10 +162,10 @@
         <h4 class="px-2 pb-2 text-center">Spearman correlation over moving averages</h4>
         <div class="row ps-2 row-section">
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Close_Price_MA_S_1.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Close_Price_MA_S_1.png" class="plot_img">
             </div>
             <div class="col-lg-12 col-xl-6 text-center">
-                <img src="../images/{symbol}_Close_Price_MA_S_2.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Close_Price_MA_S_2.png" class="plot_img">
             </div>
         </div>
         <hr>
@@ -182,7 +188,7 @@
                 </p>
             </div>
             <div class="col-lg-12 col-xl-9 text-center">
-                <img src="../images/{symbol}_Pcnt_Drawdown_ATH.png" class="plot_img">
+                <img src="../images/{symbol}/{symbol}_Pcnt_Drawdown_ATH.png" class="plot_img">
             </div>
         </div>
         <hr>

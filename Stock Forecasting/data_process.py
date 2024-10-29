@@ -49,7 +49,8 @@ class StockData:
         reload_data: bool = False
     ) -> None:
         self.symbol = symbol
-        self.image_out_path = image_out_path
+        self.image_out_path = image_out_path.joinpath(symbol)
+        self.image_out_path.mkdir(exist_ok = True, parents = True)
         self.consolidated_data_path = stock_data_dir.joinpath(symbol, "consolidated.parquet")
 
         if reload_data or (not (self.consolidated_data_path.exists() and self.consolidated_data_path.is_file())):
@@ -252,7 +253,7 @@ class StockData:
             plt.legend()
             plt.xlabel("Date", fontsize = 12)
             plt.ylabel("Close Price", fontsize = 12)
-            plt.title(f"{self.symbol} - Moving averages of Close Price", fontsize = 14)
+            plt.title(f"{self.symbol} - Moving averages of Close price", fontsize = 14)
             plt.savefig(
                 self.image_out_path.joinpath(f"{self.symbol}_MA_Close_Price.png"), 
                 bbox_inches = "tight"
@@ -430,24 +431,45 @@ class StockData:
                 y = pd.to_timedelta(
                     plot_data['Date'].dt.date - plot_data['First hit of Close']
                 ).dt.days,
-                label = "Max period",
-                color = "indianred",
+                label = "Max period by date"
             )
-            sns.lineplot(
-                x = plot_data['Date'],
+
+            plt.axhline(
                 y = pd.to_timedelta(
-                    plot_data['Date'].dt.date - plot_data['Last hit of Close']
-                ).dt.days,
-                label = "Min period",
-                color = "mediumseagreen",
+                    self.raw_data['Date'].dt.date - self.raw_data['First hit of Close']
+                ).dt.days.max(),
+                linestyle = "dashdot",
+                color = "indianred",
+                label = 'Overall max period'
             )
 
             plt.legend()
             plt.xlabel("Date", fontsize = 12)
             plt.ylabel("Calendar days", fontsize = 12)
-            plt.title(f"{self.symbol} - Period of non positive return", fontsize = 14)
+            plt.title(f"{self.symbol} - Max period of non positive return", fontsize = 14)
             plt.savefig(
-                self.image_out_path.joinpath(f"{self.symbol}_Period_of_No_Return.png"), 
+                self.image_out_path.joinpath(f"{self.symbol}_Max_Period_of_No_Return.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
+
+            plt.figure(figsize = (10, 5), dpi = 125)
+            
+            close_prices = np.arange(0.9, 1.101, 0.005) * self.last_close
+            total_hits = []
+
+            for cp in close_prices:
+                total_hits.append(
+                    len(self.raw_data[self.raw_data["Close"] >= cp])
+                )
+            
+            sns.lineplot(x = close_prices, y = total_hits)
+
+            plt.xlabel("Close Price", fontsize = 12)
+            plt.ylabel("Total hits", fontsize = 12)
+            plt.title(f"{self.symbol} - Total hits by Close price", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Total_hits_Close_Price.png"), 
                 bbox_inches = "tight"
             )
             plt.close()
@@ -579,13 +601,23 @@ class StockData:
             as_index = False
         )['Streak'].max()
 
-        self.streak_cont_prob = max_streaks[
-            (max_streaks['Is Green'] == self.last_candle) &
-            (max_streaks['Streak'] > self.candle_streak)
-        ].shape[0] / max_streaks[
-            (max_streaks['Is Green'] == self.last_candle) &
-            (max_streaks['Streak'] >= self.candle_streak)
+        last_candle_streaks = max_streaks[max_streaks['Is Green'] == self.last_candle]
+
+        self.streak_cont_prob = last_candle_streaks[
+            last_candle_streaks['Streak'] > self.candle_streak
+        ].shape[0] / last_candle_streaks[
+            last_candle_streaks['Streak'] >= self.candle_streak
         ].shape[0]
+
+        longest_candle_streak = last_candle_streaks['Streak'].max()
+        longest_candle_si = last_candle_streaks[
+            last_candle_streaks['Streak'] == longest_candle_streak
+        ]['Streak Index'].iloc[-1]
+        self.longest_candle_streak: tuple[int, date, date] = (
+            longest_candle_streak,
+            self.raw_data['Date'][self.raw_data['Streak Index'] == longest_candle_si].min().date(),
+            self.raw_data['Date'][self.raw_data['Streak Index'] == longest_candle_si].max().date()
+        )
 
         self._save_streak_plots(max_streaks)
     
