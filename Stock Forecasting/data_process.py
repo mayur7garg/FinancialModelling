@@ -541,7 +541,7 @@ class StockData:
             names = ['Year', 'Quarter']
         ).sort_values(
             ['Year', 'Quarter']
-        )
+        ).iloc[-21:]
 
         quarterly_results['Quarter Name'] = (
             "'" +

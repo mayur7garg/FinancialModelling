@@ -8,7 +8,8 @@ def create_index(
     out_path: Path,
     summaries: list[StockSummary],
     perf_reports: list[list[PerformanceReport]],
-    performance_periods: list[int]
+    performance_periods: list[int],
+    top_count: int = 5
 ):
     with template_path.open('r', encoding = "utf-8") as f:
         index = f.read()
@@ -46,7 +47,7 @@ def create_index(
         perf_results[period] = sorted(perf_results[period])
         perf_period_size.append(f'<th scope="col">{period} Days</th>')
 
-    for i in range(3):
+    for i in range(top_count):
         period_gainers = []
         period_losers = []
 
