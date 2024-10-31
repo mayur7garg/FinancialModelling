@@ -192,7 +192,7 @@ class StockData:
         self._create_ma_features(ma_periods)
         self._create_rolling_features()
         self._create_historical_features()
-        self._create_daily_candle_features()
+        self._create_daily_quarterly_features()
         self._create_streak_features()
         self._create_sp_ma_features(sp_ma_periods)
         self._create_ath_features()
@@ -511,7 +511,7 @@ class StockData:
             )
             plt.close()
 
-    def _create_daily_candle_features(self):
+    def _create_daily_quarterly_features(self):
         self.raw_data['Range'] = self.raw_data['High'] - self.raw_data['Low']
         self.raw_data['Is Green'] = (
             self.raw_data['Close'] >= self.raw_data['Prev Close']
@@ -523,67 +523,91 @@ class StockData:
             ]['Is Green']
         ) / self.summary.num_records
 
-        self._save_daily_candle_plots()
+        self._save_quarterly_plots()
     
-    def _save_daily_candle_plots(self):
+    def _save_quarterly_plots(self):
+        quarterly_results = self.raw_data.groupby(
+            [
+                self.raw_data['Date'].dt.year,
+                self.raw_data['Date'].dt.quarter
+            ]
+        ).agg(
+            {
+                "Is Green": lambda x: (sum(x) * 100)/ len(x),
+                "Prev Close": "first",
+                "Close": "last"
+            }
+        ).reset_index(
+            names = ['Year', 'Quarter']
+        ).sort_values(
+            ['Year', 'Quarter']
+        )
+
+        quarterly_results['Quarter Name'] = (
+            "'" +
+            quarterly_results['Year'].astype(str).str[2:] + 
+            ' Q' +
+            quarterly_results['Quarter'].astype(str)
+        )
+
+        quarterly_results['Returns'] = ((
+            quarterly_results['Close'] / quarterly_results['Prev Close']
+        ) - 1) * 100
+
         with sns.axes_style('dark'):
             plt.figure(figsize = (10, 5), dpi = 125)
-            sns.barplot(
-                data = self.raw_data.groupby(
-                    self.raw_data['Date'].dt.quarter, as_index = False
-                )['Is Green'].value_counts(normalize = True),
-                x = "Date",
-                y = "proportion",
-                hue = "Is Green",
-                palette = "blend:indianred,mediumseagreen"
+            sns.lineplot(
+                data = quarterly_results,
+                x = "Quarter Name",
+                y = "Is Green",
+                marker = 'o'
             )
-            plt.hlines(
-                y = 0.5, 
-                xmin = -0.5, 
-                xmax = 5, 
-                linestyles = "dashdot",
-                linewidths = (1.5,),
-                colors = "goldenrod"
+            plt.axhline(
+                y = 50,
+                linestyle = "dashdot",
+                linewidth = 1.5,
+                color = "goldenrod"
             )
-            plt.ylim((0, 1))
-            plt.xlim((-0.5, 3.5))
+
+            plt.ylim((0, 100))
+            plt.xticks(
+                quarterly_results['Quarter Name'],
+                rotation = 45,
+                fontsize = 8
+            )
             plt.xlabel("Calendar quarter", fontsize = 12)
-            plt.ylabel("Proportion", fontsize = 12)
-            plt.title(f"{self.symbol} - Proportion of candle types by calendar quarter", fontsize = 14)
+            plt.ylabel("Percentage", fontsize = 12)
+            plt.title(f"{self.symbol} - Percentage of green candles by calendar quarter", fontsize = 14)
             plt.savefig(
-                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Candles_Quarter.png"), 
+                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Green_Candles_Quarter.png"), 
                 bbox_inches = "tight"
             )
             plt.close()
-            
+
             plt.figure(figsize = (10, 5), dpi = 125)
-            sns.barplot(
-                data = self.raw_data.groupby(
-                    self.raw_data['Date'].dt.year, as_index = False
-                )['Is Green'].value_counts(normalize = True),
-                x = "Date",
-                y = "proportion",
-                hue = "Is Green",
-                palette = "blend:indianred,mediumseagreen"
+            sns.lineplot(
+                data = quarterly_results,
+                x = "Quarter Name",
+                y = "Returns",
+                marker = 'o'
             )
-            plt.hlines(
-                y = 0.5, 
-                xmin = -0.5, 
-                xmax = 5, 
-                linestyles = "dashdot",
-                linewidths = (1.5,),
-                colors = "goldenrod"
+            plt.axhline(
+                y = 0,
+                linestyle = "dashdot",
+                linewidth = 1.5,
+                color = "goldenrod"
             )
-            plt.ylim((0, 1))
-            plt.xlim((
-                -0.5, 
-                self.raw_data['Date'].dt.year.max() - self.raw_data['Date'].dt.year.min() + 0.5
-            ))
-            plt.xlabel("Year", fontsize = 12)
-            plt.ylabel("Proportion", fontsize = 12)
-            plt.title(f"{self.symbol} - Proportion of candle types by year", fontsize = 14)
+
+            plt.xticks(
+                quarterly_results['Quarter Name'],
+                rotation = 45,
+                fontsize = 8
+            )
+            plt.xlabel("Calendar quarter", fontsize = 12)
+            plt.ylabel("Net return (%)", fontsize = 12)
+            plt.title(f"{self.symbol} - Net returns by calendar quarter", fontsize = 14)
             plt.savefig(
-                self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Candles_Year.png"), 
+                self.image_out_path.joinpath(f"{self.symbol}_Net_Returns_Candles_Quarter.png"), 
                 bbox_inches = "tight"
             )
             plt.close()
