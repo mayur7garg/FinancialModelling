@@ -230,6 +230,27 @@ class StockData:
                 (self.raw_data['Close'] - self.raw_data[col_name]) /
                 self.raw_data[col_name]
             ).round(5) * 100
+        
+        is_above_200_MA = self.raw_data['Close'] >= self.raw_data['MA 200 days']
+        is_above_200_MA_si = (
+            is_above_200_MA != is_above_200_MA.shift(1)
+        ).cumsum()
+        is_above_200_MA_streak = (is_above_200_MA.groupby(
+            is_above_200_MA_si
+        ).cumcount() + 1).iloc[-1]
+
+        if is_above_200_MA_streak >= 200:
+            streak_start_date = self.raw_data['Date'][is_above_200_MA_si == is_above_200_MA_si.iloc[-1]].iloc[0].date()
+
+            if is_above_200_MA.iloc[-1]:
+                self.highlights.append(
+                    f'<li>This stock has closed above its 200 day moving average since <span class="metric">{streak_start_date:%B %d, %Y}</span> which is <span class="metric color-green">{is_above_200_MA_streak}</span> trading days in a row.</li>'
+                )
+            else:
+                self.highlights.append(
+                    f'<li>This stock has closed below its 200 day moving average since <span class="metric">{streak_start_date:%B %d, %Y}</span> which is <span class="metric color-red">{is_above_200_MA_streak}</span> trading days in a row.</li>'
+                )
+
         self._save_ma_plots(ma_periods)
 
     def _save_ma_plots(self, ma_periods: list[int]):
@@ -648,7 +669,7 @@ class StockData:
         if self.candle_streak >= 5:
             last_candle = "Green" if self.last_candle == 1 else "Red"
             self.highlights.append(
-                f'<li>On a <span class="metric">{self.candle_streak}</span> day <span class="metric color-{last_candle.lower()}">{last_candle}</span> candle streak on a close by close basis.</li>'
+                f'<li>This stock is on a <span class="metric">{self.candle_streak}</span> day <span class="metric color-{last_candle.lower()}">{last_candle}</span> candle streak on a close by close basis.</li>'
             )
 
         self._save_streak_plots(max_streaks)
