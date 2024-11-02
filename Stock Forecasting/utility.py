@@ -53,4 +53,4 @@ def human_readable_int(number: int | float):
     units = ['', 'K', 'M', 'B', 'T']
     k = 1000.0
     magnitude = int(floor(log(number, k)))
-    return f'{number / k ** magnitude:.2f} {units[magnitude]}'
+    return f'{number / k ** magnitude:.2f}{units[magnitude]}'
