@@ -41,7 +41,6 @@ def update_hist_eq_data(
     symbol: str,
     stock_data_dir: Path
 ):
-    print(f"\n{symbol}")
     stock_data_dir = stock_data_dir.joinpath(symbol)
     csv_files = list(stock_data_dir.glob(f"*{symbol}*.csv"))
     completed_years = set()

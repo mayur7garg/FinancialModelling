@@ -28,6 +28,10 @@
     display: none;
 }
 
+.no_highlights{
+    display: none;
+}
+
 .is_ATH{
     display: none;
 }

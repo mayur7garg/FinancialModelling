@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from math import log, floor
 
 class Config:
     def __init__(self, config_path: Path) -> None:
@@ -47,3 +48,9 @@ class Config:
         return sorted([
             f.stem for f in self.NSE_DATA_DIR.glob("*") if f.is_dir()
         ])
+
+def human_readable_int(number: int | float):
+    units = ['', 'K', 'M', 'B', 'T']
+    k = 1000.0
+    magnitude = int(floor(log(number, k)))
+    return f'{number / k ** magnitude:.2f} {units[magnitude]}'

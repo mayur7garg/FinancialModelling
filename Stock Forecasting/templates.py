@@ -2,6 +2,7 @@ from datetime import date
 from pathlib import Path
 
 from data_process import StockSummary, PerformanceReport, StockData
+from utility import human_readable_int as hri
 
 def create_index(
     template_path: Path,
@@ -16,6 +17,7 @@ def create_index(
     
     stock_summaries = []
     perf_results = {p: [] for p in performance_periods}
+    perf_values = {p: [] for p in performance_periods}
 
     for summ_i, (summary, stock_perfs) in enumerate(
         zip(summaries, perf_reports), start = 1
@@ -38,18 +40,24 @@ def create_index(
                 perf_results[perf_report.period_size].append(
                     (perf_report.net_returns, summary.symbol)
                 )
+                perf_values[perf_report.period_size].append(
+                    (perf_report.mean_value, summary.symbol)
+                )
 
     perf_period_size = []
     top_gainers = []
     top_losers = []
+    top_values = []
 
     for period in performance_periods:
         perf_results[period] = sorted(perf_results[period])
+        perf_values[period] = sorted(perf_values[period], reverse = True)
         perf_period_size.append(f'<th scope="col">{period} Days</th>')
 
     for i in range(top_count):
         period_gainers = []
         period_losers = []
+        period_top_values = []
 
         for period in performance_periods:
             period_gainer = perf_results[period][-i - 1]
@@ -63,6 +71,10 @@ def create_index(
             period_losers.append(
                 f'<td>{period_loser[1]} <span class="{change_color} metric">({period_loser[0]:.2%})</span></td>'
             )
+
+            period_top_values.append(
+                f'<td>{perf_values[period][i][1]} <span class="metric">({hri(perf_values[period][i][0])})</span></td>'
+            )
         
         top_gainers.append(
             f'<tr>\n<th scope="row">#{i + 1}</th>\n' +
@@ -75,12 +87,19 @@ def create_index(
             "\n".join(period_losers) + 
             "\n</tr>"
         )
+
+        top_values.append(
+            f'<tr>\n<th scope="row">#{i + 1}</th>\n' +
+            "\n".join(period_top_values) + 
+            "\n</tr>"
+        )
     
     index = index.format(
         stock_summaries = "\n".join(stock_summaries),
         perf_period_size = "\n".join(perf_period_size),
         top_gainers = "\n".join(top_gainers),
-        top_losers = "\n".join(top_losers)
+        top_losers = "\n".join(top_losers),
+        top_values = "\n".join(top_values)
     )
 
     with out_path.open('w', encoding = 'utf-8') as f:
@@ -102,6 +121,7 @@ def create_stock_report(
     perf_median_close = ['<th scope="row">Median Close Price</th>']
     perf_lowest_close = ['<th scope="row">Lowest Close Price</th>']
     perf_highest_close = ['<th scope="row">Highest Close Price</th>']
+    perf_mean_value = ['<th scope="row">Mean Value Traded</th>']
     perf_median_PE = ['<th scope="row">Median PE</th>']
 
     for perf_report in stock_data.perf_reports:
@@ -119,6 +139,7 @@ def create_stock_report(
         perf_median_close.append(f'<td>{perf_report.median_close:.2f}</td>')
         perf_lowest_close.append(f'<td>{perf_report.lowest_close:.2f}</td>')
         perf_highest_close.append(f'<td>{perf_report.hightest_close:.2f}</td>')
+        perf_mean_value.append(f'<td>{hri(perf_report.mean_value)}</td>')
         perf_median_PE.append(f'<td>{perf_report.median_PE:.2f}</td>')
 
     last_candle = "Green" if stock_data.last_candle == 1 else "Red"
@@ -141,6 +162,9 @@ def create_stock_report(
 
     report = report.format(
         symbol = stock_data.symbol,
+        last_close = stock_data.last_close,
+        last_change = f"{stock_data.summary.last_change:.2%}",
+        last_candle_color = f"color-{last_candle.lower()}",
         num_records = stock_data.summary.num_records,
         start_date = f"{stock_data.summary.start_date:%B %d, %Y}",
         end_date = f"{stock_data.summary.end_date:%B %d, %Y}",
@@ -152,9 +176,11 @@ def create_stock_report(
         perf_median_close = "\n".join(perf_median_close),
         perf_lowest_close = "\n".join(perf_lowest_close),
         perf_highest_close = "\n".join(perf_highest_close),
+        perf_mean_value = "\n".join(perf_mean_value),
         perf_median_PE = "\n".join(perf_median_PE),
         PE_available = "" if stock_data.summary.has_PE else "no_PE",
-        last_close = stock_data.last_close,
+        no_highlights = "" if len(stock_data.highlights) else "no_highlights",
+        highlights = "\n".join(stock_data.highlights),
         ma_values = "\n".join(ma_values),
         first_hit_info = first_hit_info,
         is_ATH = "" if total_hits_of_last_close > 1 else "is_ATH",
@@ -162,8 +188,6 @@ def create_stock_report(
         pcnt_hits_of_last_close = f"{stock_data.raw_data['Pcnt hits of Close'].iloc[-1]:.1%}",
         last_hit_info = last_hit_info,
         last_candle = last_candle,
-        last_change = f"{stock_data.summary.last_change:.2%}",
-        last_candle_color = f"color-{last_candle.lower()}",
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
         candle_streak = stock_data.candle_streak,
         curr_streak_returns = f"{stock_data.curr_streak_returns:.2%}",
@@ -179,3 +203,5 @@ def create_stock_report(
 
     with page_out_path.joinpath(f"{stock_data.symbol}.html").open('w', encoding = 'utf-8') as f:
         f.write(report)
+    
+    print(f"> Updated {stock_data.symbol}.html")

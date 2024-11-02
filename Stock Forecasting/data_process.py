@@ -37,6 +37,7 @@ class PerformanceReport:
     median_close: float
     lowest_close: float
     hightest_close: float
+    mean_value: float
     median_PE: float
 
 class StockData:
@@ -76,13 +77,13 @@ class StockData:
             self.raw_data['PE'].iloc[-1] if has_PE else 0
         )
         self.perf_reports: list[PerformanceReport] = []
+        self.highlights: list[str] = []
 
     def consolidate_data(
             self,
             stock_data_dir: Path,
             company_data_dir: Path
         ) -> pd.DataFrame:
-        print(f"\nReloading data for '{self.symbol}'...")
 
         hist_dfs = []
         files = list(stock_data_dir.joinpath(self.symbol).glob(f"*{self.symbol}*.csv"))
@@ -177,7 +178,7 @@ class StockData:
                 for col in ["Open", "High", "Low", "LTP", "Close", "VWAP"]:
                     hist_df[col] = hist_df[col] * price_multiplier_df['StockMultiplier']
 
-            print(f"Loaded {hist_df.shape[0]} records from {len(files)} files with data from {hist_df['Date'].min().date()} to {hist_df['Date'].max().date()}.")
+            print(f"> Loaded {hist_df.shape[0]} records from {len(files)} files with data from {hist_df['Date'].min().date()} to {hist_df['Date'].max().date()}.")
             return hist_df
         else:
             raise Exception(f"Could not load data for '{self.symbol}'")
@@ -212,6 +213,7 @@ class StockData:
                     period_df['Close'].median(),
                     period_df['Close'].min(),
                     period_df['Close'].max(),
+                    period_df['Value'].mean(),
                     period_df['PE'].median() if self.summary.has_PE else 0
                 )
             )
@@ -643,6 +645,12 @@ class StockData:
             self.raw_data['Date'][self.raw_data['Streak Index'] == longest_candle_si].max().date()
         )
 
+        if self.candle_streak >= 5:
+            last_candle = "Green" if self.last_candle == 1 else "Red"
+            self.highlights.append(
+                f'<li>On a <span class="metric">{self.candle_streak}</span> day <span class="metric color-{last_candle.lower()}">{last_candle}</span> candle streak on a close by close basis.</li>'
+            )
+
         self._save_streak_plots(max_streaks)
     
     def _save_streak_plots(self, max_streaks: pd.DataFrame):
@@ -737,6 +745,12 @@ class StockData:
         self.last_ath_date = self.raw_data.loc[
             self.raw_data['% Down from ATH'] == 0, 'Date'
         ].iloc[-1]
+
+        if (self.raw_data['% Down from ATH'].iloc[-1] >= -2) or (self.raw_data['% Down from ATH'].iloc[-1] <= -50):
+            self.highlights.append(
+                f'<li>Currently, this stock is <span class="metric">{-self.raw_data["% Down from ATH"].iloc[-1]:.2f}%</span> away from its all time high.</li>'
+            )
+
         self._save_ath_plots()
 
     def _save_ath_plots(self):
