@@ -478,16 +478,27 @@ class StockData:
 
             plt.figure(figsize = (10, 5), dpi = 125)
             
-            close_prices = np.arange(0.9, 1.101, 0.005) * self.last_close
-            total_hits = []
-
-            for cp in close_prices:
-                total_hits.append(
-                    len(self.raw_data[self.raw_data["Close"] >= cp])
-                )
-            
-            sns.lineplot(x = close_prices, y = total_hits)
-
+            sns.histplot(
+                x = self.raw_data["Close"].iloc[-1000:],
+                bins = np.linspace(self.last_close * 0.75, self.last_close * 1.25, 21)
+            )
+            plt.axvline(x = self.last_close, linestyle = "dashdot", color = "goldenrod", label = 'Last Close')
+            plt.axhline(
+                y = 20,
+                xmax = 0.5,
+                linestyle = "dashdot",
+                color = "mediumseagreen",
+                label = 'Support'
+            )
+            plt.axhline(
+                y = 15,
+                xmin = 0.5,
+                linestyle = "dashdot",
+                color = "indianred",
+                label = 'Resistance'
+            )
+            plt.legend()
+            plt.xticks(np.linspace(self.last_close * 0.75, self.last_close * 1.25, 11).round())
             plt.xlabel("Close Price", fontsize = 12)
             plt.ylabel("Total hits", fontsize = 12)
             plt.title(f"{self.symbol} - Total hits by Close price", fontsize = 14)
