@@ -241,14 +241,17 @@ class StockData:
 
         if is_above_200_MA_streak >= 200:
             streak_start_date = self.raw_data['Date'][is_above_200_MA_si == is_above_200_MA_si.iloc[-1]].iloc[0].date()
+            streak_returns = ((
+                self.last_close / self.raw_data[self.raw_data['Date'].dt.date == streak_start_date]['Prev Close']
+            ) - 1).values[0]
 
             if is_above_200_MA.iloc[-1]:
                 self.highlights.append(
-                    f'<li>This stock has closed above its 200 day moving average since <span class="metric">{streak_start_date:%B %d, %Y}</span> which is <span class="metric color-green">{is_above_200_MA_streak}</span> trading days in a row.</li>'
+                    f'<li>This stock has closed above its 200 day moving average since <span class="metric">{streak_start_date:%B %d, %Y}</span> which is <span class="metric color-green">{is_above_200_MA_streak}</span> trading days in a row for a net return of <span class="metric color-green">{streak_returns:.2%}</span>.</li>'
                 )
             else:
                 self.highlights.append(
-                    f'<li>This stock has closed below its 200 day moving average since <span class="metric">{streak_start_date:%B %d, %Y}</span> which is <span class="metric color-red">{is_above_200_MA_streak}</span> trading days in a row.</li>'
+                    f'<li>This stock has closed below its 200 day moving average since <span class="metric">{streak_start_date:%B %d, %Y}</span> which is <span class="metric color-red">{is_above_200_MA_streak}</span> trading days in a row for a net return of <span class="metric color-red">{streak_returns:.2%}</span>.</li>'
                 )
 
         self._save_ma_plots(ma_periods)
