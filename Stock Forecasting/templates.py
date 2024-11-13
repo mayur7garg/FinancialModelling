@@ -1,6 +1,10 @@
 from datetime import date
 from pathlib import Path
 
+import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
+
 from data_process import StockSummary, PerformanceReport, StockData
 from utility import human_readable_int as hri
 
@@ -9,12 +13,13 @@ def create_index(
     out_path: Path,
     summaries: list[StockSummary],
     perf_reports: list[list[PerformanceReport]],
+    stock_dfs: list[pd.DataFrame],
     performance_periods: list[int],
     top_count: int = 5
 ):
     with template_path.open('r', encoding = "utf-8") as f:
         index = f.read()
-    
+
     stock_summaries = []
     perf_results = {p: [] for p in performance_periods}
     perf_values = {p: [] for p in performance_periods}
@@ -104,6 +109,11 @@ def create_index(
 
     with out_path.open('w', encoding = 'utf-8') as f:
         f.write(index)
+    
+    _save_index_plots(
+        pd.concat(stock_dfs),
+        out_path.parent.joinpath("web", "images", "index")
+    )
 
 def create_stock_report(
     template_path: Path,
@@ -205,3 +215,48 @@ def create_stock_report(
         f.write(report)
     
     print(f"> Updated {stock_data.symbol}.html")
+
+def _save_index_plots(
+    all_stocks_df: pd.DataFrame,
+    image_out_path: Path
+):
+    all_stocks_df['Is above 15 MA'] = all_stocks_df['Close'] >= all_stocks_df['MA 15 days']
+    all_stocks_df['Is above 200 MA'] = all_stocks_df['Close'] >= all_stocks_df['MA 200 days']
+
+    above_MA_pcnt = all_stocks_df.groupby(
+        'Date', as_index = False
+    )[['Is above 15 MA', 'Is above 200 MA']].agg(
+        lambda x: (sum(x) / len(x)) * 100
+    )
+
+    with sns.axes_style('dark'):
+        plt.figure(figsize = (10, 5), dpi = 125)
+
+        plt.axhline(y = 50, linestyle = "dashdot", color = "goldenrod")
+
+        sns.lineplot(
+            above_MA_pcnt.iloc[-500:],
+            x = 'Date',
+            y = 'Is above 15 MA',
+            label = "15 MA",
+            c = 'mediumseagreen'
+        )
+
+        sns.lineplot(
+            above_MA_pcnt.iloc[-500:],
+            x = 'Date',
+            y = 'Is above 200 MA',
+            label = "200 MA",
+            c = 'indianred'
+        )
+
+        plt.legend()
+        plt.ylim((-1, 101))
+        plt.xlabel("Date", fontsize = 12)
+        plt.ylabel("Percentage", fontsize = 12)
+        plt.title("Percentage of stocks above their moving averages", fontsize = 14)
+        plt.savefig(
+            image_out_path.joinpath(f"Marketwatch_Pcnt_Stocks_above_MA.png"), 
+            bbox_inches = "tight"
+        )
+        plt.close()

@@ -16,6 +16,7 @@ PERF_PERIODS = [5, 15, 50, 200, 1000]
 
 summaries = []
 perf_reports = []
+stock_dfs = []
 
 for symbol in STOCK_SYMBOLS:
     print(f"\n{symbol}")
@@ -44,10 +45,14 @@ for symbol in STOCK_SYMBOLS:
     summaries.append(stock_data.summary)
     perf_reports.append(stock_data.perf_reports)
 
+    stock_data.raw_data['Symbol'] = symbol
+    stock_dfs.append(stock_data.raw_data)
+
 templates.create_index(
     CONFIG.INDEX_TEMPLATE, 
     CONFIG.INDEX_PATH, 
     summaries,
     perf_reports,
+    stock_dfs,
     PERF_PERIODS[::2]
 )
