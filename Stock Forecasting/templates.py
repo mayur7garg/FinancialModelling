@@ -238,7 +238,7 @@ def _save_index_plots(
             above_MA_pcnt.iloc[-500:],
             x = 'Date',
             y = 'Is above 15 MA',
-            label = "15 MA",
+            label = f"15 MA ({above_MA_pcnt['Is above 15 MA'].iloc[-1]:.1f}%)",
             c = 'mediumseagreen'
         )
 
@@ -246,7 +246,7 @@ def _save_index_plots(
             above_MA_pcnt.iloc[-500:],
             x = 'Date',
             y = 'Is above 200 MA',
-            label = "200 MA",
+            label = f"200 MA ({above_MA_pcnt['Is above 200 MA'].iloc[-1]:.1f}%)",
             c = 'indianred'
         )
 

@@ -267,12 +267,11 @@ class StockData:
                 ma_periods,
                 ['mediumseagreen', 'goldenrod', 'indianred']
             ):
-                col_name = f'MA {period} days'
                 sns.lineplot(
                     plot_data,
                     x = 'Date',
-                    y = col_name,
-                    label = col_name,
+                    y = f'MA {period} days',
+                    label = f'MA {period}-D',
                     c = color
                 )
 
@@ -291,18 +290,19 @@ class StockData:
                 ['mediumseagreen', 'goldenrod', 'indianred']
             ):
                 plt.figure(figsize = (10, 5), dpi = 125)
-                plt.axhline(y = 0, linestyle = "dashdot", color = color, label = f'MA {period} days')
+                plt.axhline(y = 0, linestyle = "dashdot", color = color, label = f'MA {period}-D')
 
                 sns.lineplot(
                     plot_data,
                     x = 'Date',
-                    y = f'% Change from {period} MA'
+                    y = f'% Change from {period} MA',
+                    label = f"Latest: {plot_data[f'% Change from {period} MA'].iloc[-1]:.1f}%"
                 )
 
                 plt.legend()
                 plt.xlabel("Date", fontsize = 12)
-                plt.ylabel(f"Change from {period} MA (%)", fontsize = 12)
-                plt.title(f"{self.symbol} - Change from {period} MA", fontsize = 14)
+                plt.ylabel(f"Change from {period}-D MA (%)", fontsize = 12)
+                plt.title(f"{self.symbol} - Change from {period}-D MA", fontsize = 14)
                 plt.savefig(
                     self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Change_MA_{period}.png"), 
                     bbox_inches = "tight"
@@ -359,23 +359,24 @@ class StockData:
                 linestyle = "dashdot",
                 linewidth = 1.5,
                 color = "goldenrod", 
-                label = "Overall median"
+                label = f"Overall median ({self.raw_data['% Rolling Returns 200 days'].median():.3f}%)"
             )
             plt.axhline(
                 y = plot_data['% Rolling Returns 200 days'].median(), 
                 linestyle = "dashdot",
                 linewidth = 1.5,
                 color = "mediumseagreen", 
-                label = "Last 500 days median"
+                label = f"Last 500-D median ({plot_data['% Rolling Returns 200 days'].median():.3f}%)"
             )
 
             sns.lineplot(
                 plot_data,
                 x = 'Date',
-                y = '% Rolling Returns 200 days'
+                y = '% Rolling Returns 200 days',
+                label = f"Latest: {plot_data['% Rolling Returns 200 days'].iloc[-1]:.3f}%"
             )
 
-            plt.legend()
+            plt.legend(fontsize = 'small')
             plt.xlabel("End date", fontsize = 12)
             plt.ylabel("Average Daily Return (%)", fontsize = 12)
             plt.title(f"{self.symbol} - Average daily 200 days rolling returns", fontsize = 14)
@@ -393,23 +394,24 @@ class StockData:
                 linestyle = "dashdot",
                 linewidth = 1.5,
                 color = "goldenrod", 
-                label = "Overall median"
+                label = f"Overall median ({self.raw_data['% Rolling Returns 1000 days'].median():.3f}%)"
             )
             plt.axhline(
                 y = plot_data['% Rolling Returns 1000 days'].median(), 
                 linestyle = "dashdot",
                 linewidth = 1.5,
                 color = "mediumseagreen", 
-                label = "Last 500 days median"
+                label = f"Last 500-D median ({plot_data['% Rolling Returns 1000 days'].median():.3f}%)"
             )
 
             sns.lineplot(
                 plot_data[['Date', '% Rolling Returns 1000 days']],
                 x = 'Date',
-                y = '% Rolling Returns 1000 days'
+                y = '% Rolling Returns 1000 days',
+                label = f"Latest: {plot_data['% Rolling Returns 1000 days'].iloc[-1]:.3f}%"
             )
 
-            plt.legend()
+            plt.legend(fontsize = 'small')
             plt.xlabel("End date", fontsize = 12)
             plt.ylabel("Average Daily Return (%)", fontsize = 12)
             plt.title(f"{self.symbol} - Average daily 1000 days rolling returns", fontsize = 14)

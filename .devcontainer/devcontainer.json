@@ -1,5 +1,5 @@
 {
-	"name": "Python Rust Experiments",
+	"name": "Financial Modelling",
 	"dockerComposeFile": ["../docker-compose.yml"],
 	"service": "finance-modelling",
 	"workspaceFolder": "/src",
