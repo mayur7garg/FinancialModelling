@@ -110,8 +110,11 @@ def create_index(
     with out_path.open('w', encoding = 'utf-8') as f:
         f.write(index)
     
+    stock_dfs = pd.concat(stock_dfs, ignore_index = True)
+    stock_dfs.to_parquet(out_path.parent.joinpath("data", "NSE", "all_consolidated.parquet"))
+
     _save_index_plots(
-        pd.concat(stock_dfs),
+        stock_dfs,
         out_path.parent.joinpath("web", "images", "index")
     )
 

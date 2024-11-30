@@ -18,8 +18,8 @@ summaries = []
 perf_reports = []
 stock_dfs = []
 
-for symbol in STOCK_SYMBOLS:
-    print(f"\n{symbol}")
+for i, symbol in enumerate(STOCK_SYMBOLS, start = 1):
+    print(f"\n#{i} {symbol}")
 
     is_data_updated = False if args.no_update else update_hist_eq_data(symbol, CONFIG.NSE_DATA_DIR)
 
