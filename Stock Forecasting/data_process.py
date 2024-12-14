@@ -539,7 +539,7 @@ class StockData:
 
             plt.axvline(x = self.last_close, linestyle = "dashdot", color = "indianred", label = 'Last Close')
             plt.legend()
-            plt.xlim((0, None))
+            plt.xlim((self.raw_data['Close'].min() - 2, self.raw_data['Close'].max() + 2))
             plt.xticks(xticks, rotation = 75, fontsize = 8)
             plt.xlabel("Close Price", fontsize = 12)
             plt.ylabel("Density", fontsize = 12)
@@ -592,6 +592,21 @@ class StockData:
         quarterly_results['Returns'] = ((
             quarterly_results['Close'] / quarterly_results['Prev Close']
         ) - 1) * 100
+
+        is_quarter_green = quarterly_results['Returns'] >= 0
+        quarterly_results['Streak'] = quarterly_results.groupby((
+            is_quarter_green != is_quarter_green.shift(1)
+        ).cumsum()).cumcount() + 1
+
+        if quarterly_results['Streak'].iloc[-1] >= 4:
+            if quarterly_results['Returns'].iloc[-1] >= 0:
+                self.highlights.append(
+                    f'<li>Including the ongoing quarter, this stock has given positive returns for <span class="metric color-green">{quarterly_results["Streak"].iloc[-1]}</span> quarters in a row.</li>'
+                )
+            else:
+                self.highlights.append(
+                    f'<li>Including the ongoing quarter, this stock has given negative returns for <span class="metric color-red">{quarterly_results["Streak"].iloc[-1]}</span> quarters in a row.</li>'
+                )
 
         with sns.axes_style('dark'):
             plt.figure(figsize = (10, 5), dpi = 125)
@@ -785,7 +800,7 @@ class StockData:
 
         if (self.raw_data['% Down from ATH'].iloc[-1] >= -2) or (self.raw_data['% Down from ATH'].iloc[-1] <= -50):
             self.highlights.append(
-                f'<li>Currently, this stock is <span class="metric">{-self.raw_data["% Down from ATH"].iloc[-1]:.2f}%</span> away from its all time high.</li>'
+                f'<li>Currently, this stock is <span class="metric">{abs(self.raw_data["% Down from ATH"].iloc[-1]):.2f}%</span> away from its all time high.</li>'
             )
 
         self._save_ath_plots()
