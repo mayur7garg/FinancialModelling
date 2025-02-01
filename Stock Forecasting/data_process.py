@@ -151,6 +151,7 @@ class StockData:
         self._create_streak_features()
         self._create_sp_ma_features(sp_ma_periods)
         self._create_ath_features()
+        self._create_intraday_features()
 
     def _create_performance_features(self, performance_periods: list[int]):
         for period in performance_periods:
@@ -214,7 +215,7 @@ class StockData:
             plot_data = self.raw_data.iloc[-1000:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
-            plt.axhline(y = self.last_close, linestyle = "dashdot", label = "Last Close Price")
+            plt.axhline(y = self.last_close, linestyle = "dashdot", label = "Latest Close price")
 
             for period, color in zip(
                 ma_periods,
@@ -789,6 +790,66 @@ class StockData:
             plt.title(f"{self.symbol} - Drawdown from ATH", fontsize = 14)
             plt.savefig(
                 self.image_out_path.joinpath(f"{self.symbol}_Pcnt_Drawdown_ATH.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
+    
+    def _create_intraday_features(self):
+        self._save_intraday_plots()
+    
+    def _save_intraday_plots(self):
+        plot_data = self.raw_data[
+            ["Date", "Open", "High", "Low", "Prev Close", "LTP", "Close", "VWAP"]
+        ].iloc[-50:]
+
+        with sns.axes_style('dark'):
+            plt.figure(figsize = (10, 5), dpi = 125)
+            plt.axhline(y = 0, linestyle = "dashdot", label = "Prev Close Price")
+
+            for metric, color in (
+                ("High", "mediumseagreen"),
+                ("Open", "goldenrod"),
+                ("Low", "indianred")
+            ):
+
+                sns.lineplot(
+                    x = plot_data['Date'],
+                    y = ((plot_data[metric] / plot_data["Prev Close"]) - 1) * 100,
+                    label = metric,
+                    c = color
+                )
+
+            plt.legend()
+            plt.xlabel("Date", fontsize = 12)
+            plt.ylabel("Change from previous Close price (%)", fontsize = 12)
+            plt.title(f"{self.symbol} - Metrics w.r.t. previous Close price", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Intraday_Open_High_Low.png"), 
+                bbox_inches = "tight"
+            )
+            plt.close()
+
+            plt.figure(figsize = (10, 5), dpi = 125)
+            plt.axhline(y = 0, linestyle = "dashdot", label = "Close price")
+
+            for metric, color in (
+                ("VWAP", "mediumseagreen"),
+                ("LTP", "indianred")
+            ):
+
+                sns.lineplot(
+                    x = plot_data['Date'],
+                    y = ((plot_data[metric] / plot_data["Close"]) - 1) * 100,
+                    label = metric,
+                    c = color
+                )
+
+            plt.legend()
+            plt.xlabel("Date", fontsize = 12)
+            plt.ylabel("Change from Close price (%)", fontsize = 12)
+            plt.title(f"{self.symbol} - Metrics w.r.t. Close price", fontsize = 14)
+            plt.savefig(
+                self.image_out_path.joinpath(f"{self.symbol}_Intraday_VWAP_LTP.png"), 
                 bbox_inches = "tight"
             )
             plt.close()
