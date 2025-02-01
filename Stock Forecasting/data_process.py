@@ -401,6 +401,15 @@ class StockData:
         self.raw_data['First hit of Close'] = first_hits
         self.raw_data['Last hit of Close'] = last_hits
         self.raw_data['Pcnt hits of Close'] = pcnt_hits
+        self.raw_data['Days of no return'] = pd.to_timedelta(
+            self.raw_data['Date'].dt.date - self.raw_data['First hit of Close']
+        ).dt.days
+        max_no_return = self.raw_data.iloc[self.raw_data['Days of no return'].idxmax()]
+        self.max_period_no_return = (
+            max_no_return['First hit of Close'],
+            max_no_return['Date'].date(),
+            max_no_return['Days of no return']
+        )
     
     def _save_historical_plots(self):
         with sns.axes_style('dark'):
@@ -416,9 +425,7 @@ class StockData:
             )
 
             plt.axhline(
-                y = pd.to_timedelta(
-                    self.raw_data['Date'].dt.date - self.raw_data['First hit of Close']
-                ).dt.days.max(),
+                y = self.max_period_no_return[2],
                 linestyle = "dashdot",
                 color = "indianred",
                 label = 'Overall max period'
@@ -747,6 +754,11 @@ class StockData:
         ).round(5) * 100
 
         self.ath_hits_1000_days = (self.raw_data['% Down from ATH'].iloc[-1000:] == 0).sum()
+        if self.ath_hits_1000_days < 1:
+            self.highlights.append(
+                f'<li>The last time this stock was at an all time high was over <span class="metric">1000</span> trading days ago.</li>'
+            )
+
         self.last_ath_date = self.raw_data.loc[
             self.raw_data['% Down from ATH'] == 0, 'Date'
         ].iloc[-1]

@@ -170,6 +170,8 @@ def create_stock_report(
     else:
         first_hit_info = f"This is the first time {stock_data.symbol} has closed at this high a price."
         last_hit_info = ""
+    
+    max_no_return_info = f'Historically, this stock gave a non-positive return for a maximum period of <span class="metric">{stock_data.max_period_no_return[2]}</span> days which was from <span class="metric">{stock_data.max_period_no_return[0]:%B %d, %Y}</span> to <span class="metric">{stock_data.max_period_no_return[1]:%B %d, %Y}</span>.'
 
     report = report.format(
         symbol = stock_data.symbol,
@@ -196,6 +198,7 @@ def create_stock_report(
         total_hits_of_last_close = total_hits_of_last_close,
         pcnt_hits_of_last_close = f"{stock_data.raw_data['Pcnt hits of Close'].iloc[-1]:.1%}",
         last_hit_info = last_hit_info,
+        max_no_return_info = max_no_return_info,
         last_candle = last_candle,
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
         candle_streak = stock_data.summary.candle_streak,
