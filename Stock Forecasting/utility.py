@@ -1,6 +1,16 @@
 import json
+from enum import IntEnum
 from pathlib import Path
 from math import log, floor
+
+class PerfPeriods(IntEnum):
+    VERY_SHORT = 5
+    SHORT = 15
+    MEDIUM = 50
+    LONG = 200
+    VERY_LONG = 1000
+
+PLOT_PERIOD = PerfPeriods.VERY_LONG // 2
 
 class Config:
     def __init__(self, config_path: Path) -> None:

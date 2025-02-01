@@ -6,7 +6,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 from data_process import StockSummary, PerformanceReport, StockData
-from utility import human_readable_int as hri
+from utility import PerfPeriods, PLOT_PERIOD, human_readable_int as hri
 
 def create_index(
     template_path: Path,
@@ -222,12 +222,15 @@ def _save_index_plots(
     all_stocks_df: pd.DataFrame,
     image_out_path: Path
 ):
-    all_stocks_df['Is above 15 MA'] = all_stocks_df['Close'] >= all_stocks_df['MA 15 days']
-    all_stocks_df['Is above 200 MA'] = all_stocks_df['Close'] >= all_stocks_df['MA 200 days']
+    short = PerfPeriods.SHORT
+    long = PerfPeriods.LONG
+
+    all_stocks_df[f'Is above {short} MA'] = all_stocks_df['Close'] >= all_stocks_df[f'MA {short} days']
+    all_stocks_df[f'Is above {long} MA'] = all_stocks_df['Close'] >= all_stocks_df[f'MA {long} days']
 
     above_MA_pcnt = all_stocks_df.groupby(
         'Date', as_index = False
-    )[['Is above 15 MA', 'Is above 200 MA']].agg(
+    )[[f'Is above {short} MA', f'Is above {long} MA']].agg(
         lambda x: (sum(x) / len(x)) * 100
     )
 
@@ -237,18 +240,18 @@ def _save_index_plots(
         plt.axhline(y = 50, linestyle = "dashdot", color = "goldenrod")
 
         sns.lineplot(
-            above_MA_pcnt.iloc[-500:],
+            above_MA_pcnt.iloc[-PLOT_PERIOD:],
             x = 'Date',
-            y = 'Is above 15 MA',
-            label = f"15 MA ({above_MA_pcnt['Is above 15 MA'].iloc[-1]:.1f}%)",
+            y = f'Is above {short} MA',
+            label = f"{short} MA ({above_MA_pcnt[f'Is above {short} MA'].iloc[-1]:.1f}%)",
             c = 'mediumseagreen'
         )
 
         sns.lineplot(
-            above_MA_pcnt.iloc[-500:],
+            above_MA_pcnt.iloc[-PLOT_PERIOD:],
             x = 'Date',
-            y = 'Is above 200 MA',
-            label = f"200 MA ({above_MA_pcnt['Is above 200 MA'].iloc[-1]:.1f}%)",
+            y = f'Is above {long} MA',
+            label = f"{long} MA ({above_MA_pcnt[f'Is above {long} MA'].iloc[-1]:.1f}%)",
             c = 'indianred'
         )
 

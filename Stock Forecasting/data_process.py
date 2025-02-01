@@ -8,6 +8,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 from metrics import spearman_over_ma
+from utility import PerfPeriods, PLOT_PERIOD
 
 @dataclass
 class StockSummary:
@@ -212,7 +213,7 @@ class StockData:
 
     def _save_ma_plots(self, ma_periods: list[int]):
         with sns.axes_style('dark'):
-            plot_data = self.raw_data.iloc[-1000:]
+            plot_data = self.raw_data.iloc[-PerfPeriods.VERY_LONG:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
             plt.axhline(y = self.last_close, linestyle = "dashdot", label = "Latest Close price")
@@ -303,7 +304,7 @@ class StockData:
         with sns.axes_style('dark'):
             plot_data = self.raw_data[
                 ['Date', '% Rolling Returns 200 days', '% Rolling Returns 1000 days']
-            ].iloc[-500:]
+            ].iloc[-PLOT_PERIOD:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
 
@@ -415,7 +416,7 @@ class StockData:
     def _save_historical_plots(self):
         with sns.axes_style('dark'):
             plt.figure(figsize = (10, 5), dpi = 125)
-            plot_data = self.raw_data.iloc[-500:]
+            plot_data = self.raw_data.iloc[-PLOT_PERIOD:]
 
             sns.lineplot(
                 x = plot_data['Date'],
@@ -441,35 +442,23 @@ class StockData:
                 bbox_inches = "tight"
             )
             plt.close()
-
+            
             plt.figure(figsize = (10, 5), dpi = 125)
             
             sns.histplot(
-                x = self.raw_data["Close"].iloc[-1000:],
-                bins = np.linspace(self.last_close * 0.75, self.last_close * 1.25, 21)
+                data = self.raw_data.iloc[-PLOT_PERIOD:],
+                x = "VWAP",
+                bins = 25,
+                weights = "Volume"
             )
             plt.axvline(x = self.last_close, linestyle = "dashdot", color = "goldenrod", label = 'Last Close')
-            plt.axhline(
-                y = 20,
-                xmax = 0.5,
-                linestyle = "dashdot",
-                color = "mediumseagreen",
-                label = 'Support'
-            )
-            plt.axhline(
-                y = 15,
-                xmin = 0.5,
-                linestyle = "dashdot",
-                color = "indianred",
-                label = 'Resistance'
-            )
+
             plt.legend()
-            plt.xticks(np.linspace(self.last_close * 0.75, self.last_close * 1.25, 11).round())
-            plt.xlabel("Close Price", fontsize = 12)
-            plt.ylabel("Total hits", fontsize = 12)
-            plt.title(f"{self.symbol} - Total hits by Close price", fontsize = 14)
+            plt.xlabel("VWAP", fontsize = 12)
+            plt.ylabel("Volume", fontsize = 12)
+            plt.title(f"{self.symbol} - Volume by VWAP", fontsize = 14)
             plt.savefig(
-                self.image_out_path.joinpath(f"{self.symbol}_Total_hits_Close_Price.png"), 
+                self.image_out_path.joinpath(f"{self.symbol}_Volume_weighted_VWAP.png"), 
                 bbox_inches = "tight"
             )
             plt.close()
@@ -707,7 +696,7 @@ class StockData:
         bins = [-1, -0.3, 0.3, 1]
         plot_data = self.raw_data[
             ['Date', 'Close'] + sp_col_names
-        ].iloc[-500:]
+        ].iloc[-PLOT_PERIOD:]
 
         for c_i, col_name in enumerate(sp_col_names, start = 1):
             with sns.axes_style('dark'):
@@ -773,7 +762,7 @@ class StockData:
 
     def _save_ath_plots(self):
         with sns.axes_style('dark'):
-            plot_data = self.raw_data[['Date', '% Down from ATH']].iloc[-1000:]
+            plot_data = self.raw_data[['Date', '% Down from ATH']].iloc[-PerfPeriods.VERY_LONG:]
 
             plt.figure(figsize = (10, 5), dpi = 125)
             plt.axhline(y = 0, linestyle = "dashdot", color = "indianred", label = "ATH")
@@ -800,7 +789,7 @@ class StockData:
     def _save_intraday_plots(self):
         plot_data = self.raw_data[
             ["Date", "Open", "High", "Low", "Prev Close", "LTP", "Close", "VWAP"]
-        ].iloc[-50:]
+        ].iloc[-PerfPeriods.MEDIUM:]
 
         with sns.axes_style('dark'):
             plt.figure(figsize = (10, 5), dpi = 125)
