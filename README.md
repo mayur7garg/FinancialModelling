@@ -18,13 +18,10 @@ Easy to follow stock price analysis on Indian stock data with results hosted at 
 ### Sources
 This project uses historical data acquired from publicly available sources listed below:
 
-1. [NSE India](https://www.nseindia.com/) - Daily stock prices
-2. [Screener.in](https://www.screener.in/) - Stock PE
+1. [NSE India](https://www.nseindia.com/) - Daily stock prices and company actions
 
 ### Update schedule
 Stock pricing data is updated 3 times a week for a set of symbols via a [cron workflow](.github/workflows/main.yml) running on GitHub actions.
-
-Updating PE data, however, is a manual process. Hence, PE information is not likely to be correct for recent dates and should not be relied upon.
 
 ## Project Prerequisites
 

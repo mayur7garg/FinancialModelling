@@ -36,7 +36,7 @@ def create_index(
     <td>{summary.end_date:%B %d, %Y}</td>
     <td>{summary.num_records}</td>
     <td>{summary.last_close} <span class="{change_color} metric">({summary.last_change:.2%})</span></td>
-    <td>{round(summary.last_PE, 2) if summary.has_PE else 'Not available'}</td>
+    <td><span class="{change_color} metric">{summary.candle_streak}</span></td>
 </tr>'''
         )
 
@@ -135,7 +135,6 @@ def create_stock_report(
     perf_lowest_close = ['<th scope="row">Lowest Close Price</th>']
     perf_highest_close = ['<th scope="row">Highest Close Price</th>']
     perf_mean_value = ['<th scope="row">Mean Value Traded</th>']
-    perf_median_PE = ['<th scope="row">Median PE</th>']
 
     for perf_report in stock_data.perf_reports:
         perf_period_size.append(f'<th scope="col">{perf_report.period_size} Days</th>')
@@ -153,7 +152,6 @@ def create_stock_report(
         perf_lowest_close.append(f'<td>{perf_report.lowest_close:.2f}</td>')
         perf_highest_close.append(f'<td>{perf_report.hightest_close:.2f}</td>')
         perf_mean_value.append(f'<td>{hri(perf_report.mean_value)}</td>')
-        perf_median_PE.append(f'<td>{perf_report.median_PE:.2f}</td>')
 
     last_candle = "Green" if stock_data.last_candle == 1 else "Red"
 
@@ -190,8 +188,6 @@ def create_stock_report(
         perf_lowest_close = "\n".join(perf_lowest_close),
         perf_highest_close = "\n".join(perf_highest_close),
         perf_mean_value = "\n".join(perf_mean_value),
-        perf_median_PE = "\n".join(perf_median_PE),
-        PE_available = "" if stock_data.summary.has_PE else "no_PE",
         no_highlights = "" if len(stock_data.highlights) else "no_highlights",
         highlights = "\n".join(stock_data.highlights),
         ma_values = "\n".join(ma_values),
@@ -202,7 +198,7 @@ def create_stock_report(
         last_hit_info = last_hit_info,
         last_candle = last_candle,
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
-        candle_streak = stock_data.candle_streak,
+        candle_streak = stock_data.summary.candle_streak,
         curr_streak_returns = f"{stock_data.curr_streak_returns:.2%}",
         streak_cont_prob = f"{stock_data.streak_cont_prob:.1%}",
         longest_candle_streak = stock_data.longest_candle_streak[0],

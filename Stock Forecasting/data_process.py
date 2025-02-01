@@ -17,16 +17,7 @@ class StockSummary:
     end_date: date
     last_close: float
     last_change: float
-    has_PE: bool
-    last_PE: float
-
-@dataclass
-class CorrelationReport:
-    num_records: int
-    start_date: date
-    end_date: date
-    min_corrs: dict[str, tuple[str, float]]
-    max_corrs: dict[str, tuple[str, float]]
+    candle_streak: int = 1
 
 @dataclass
 class PerformanceReport:
@@ -38,7 +29,6 @@ class PerformanceReport:
     lowest_close: float
     hightest_close: float
     mean_value: float
-    median_PE: float
 
 class StockData:
     def __init__(
@@ -64,7 +54,6 @@ class StockData:
             self.raw_data = pd.read_parquet(self.consolidated_data_path)
 
         self.last_close = self.raw_data['Close'].iloc[-1]
-        has_PE = 'PE' in self.raw_data.columns
 
         self.summary = StockSummary(
             self.symbol,
@@ -72,9 +61,7 @@ class StockData:
             self.raw_data['Date'].min().date(),
             self.raw_data['Date'].max().date(),
             self.last_close,
-            (self.raw_data['Close'].iloc[-1] / self.raw_data['Prev Close'].iloc[-1]) - 1,
-            has_PE,
-            self.raw_data['PE'].iloc[-1] if has_PE else 0
+            (self.raw_data['Close'].iloc[-1] / self.raw_data['Prev Close'].iloc[-1]) - 1
         )
         self.perf_reports: list[PerformanceReport] = []
         self.highlights: list[str] = []
@@ -115,39 +102,6 @@ class StockData:
                 "Date", "Open", "High", "Low", "Prev Close", "LTP", "Close",
                 "VWAP", "52W H", "52W L", "Volume", "Value", "Num Trades"
             ]
-
-            eps_file = company_data_dir.joinpath("EPS", f"{self.symbol}.csv")
-
-            if eps_file.exists():
-                eps_df = pd.read_csv(eps_file)
-
-                eps_df["FirstDateAfterFYReport"] = pd.to_datetime(
-                    eps_df["FirstDateAfterFYReport"],
-                    format = "%d-%m-%Y"
-                )
-
-                hist_df = pd.merge(
-                    hist_df,
-                    eps_df,
-                    how = "left",
-                    left_on = [hist_df['Date'].dt.strftime("%Y-%m")],
-                    right_on = [eps_df['FirstDateAfterFYReport'].dt.strftime("%Y-%m")]
-                )
-
-                hist_df['EPS'] = hist_df['EPS'].ffill()
-                hist_df['EPS'] = hist_df['EPS'].fillna(
-                    value = eps_df[
-                        eps_df["FirstDateAfterFYReport"] < hist_df["Date"].min()
-                    ]["EPS"].iloc[-1]
-                )
-                hist_df["PE"] = (hist_df["close"] / hist_df["EPS"]).round(3)
-
-                hist_df = hist_df.drop(
-                    axis = "columns", 
-                    labels = ["key_0", "FirstDateAfterFYReport", "EPS"]
-                )
-
-                col_names.append("PE")
             
             hist_df.columns = col_names
 
@@ -214,7 +168,6 @@ class StockData:
                     period_df['Close'].min(),
                     period_df['Close'].max(),
                     period_df['Value'].mean(),
-                    period_df['PE'].median() if self.summary.has_PE else 0
                 )
             )
 
@@ -669,7 +622,7 @@ class StockData:
     def _create_streak_features(self):
         self.raw_data["Streak Index"] = (self.raw_data["Is Green"] != self.raw_data["Is Green"].shift(1)).cumsum()
         self.raw_data["Streak"] = self.raw_data.groupby("Streak Index").cumcount() + 1
-        self.candle_streak = self.raw_data['Streak'].iloc[-1]
+        self.summary.candle_streak = self.raw_data['Streak'].iloc[-1]
         si = self.raw_data['Streak Index'].iloc[-1]
         curr_si = self.raw_data.loc[self.raw_data['Streak Index'] == si, ['Prev Close', 'Close']]
         self.curr_streak_returns = (curr_si['Close'].iloc[-1] / curr_si['Prev Close'].iloc[0]) - 1
@@ -682,9 +635,9 @@ class StockData:
         last_candle_streaks = max_streaks[max_streaks['Is Green'] == self.last_candle]
 
         self.streak_cont_prob = last_candle_streaks[
-            last_candle_streaks['Streak'] > self.candle_streak
+            last_candle_streaks['Streak'] > self.summary.candle_streak
         ].shape[0] / last_candle_streaks[
-            last_candle_streaks['Streak'] >= self.candle_streak
+            last_candle_streaks['Streak'] >= self.summary.candle_streak
         ].shape[0]
 
         longest_candle_streak = last_candle_streaks['Streak'].max()
@@ -697,10 +650,10 @@ class StockData:
             self.raw_data['Date'][self.raw_data['Streak Index'] == longest_candle_si].max().date()
         )
 
-        if self.candle_streak >= 5:
+        if self.summary.candle_streak >= 5:
             last_candle = "Green" if self.last_candle == 1 else "Red"
             self.highlights.append(
-                f'<li>This stock is on a <span class="metric">{self.candle_streak}</span> day <span class="metric color-{last_candle.lower()}">{last_candle}</span> candle streak on a close by close basis.</li>'
+                f'<li>This stock is on a <span class="metric">{self.summary.candle_streak}</span> day <span class="metric color-{last_candle.lower()}">{last_candle}</span> candle streak on a close by close basis.</li>'
             )
 
         self._save_streak_plots(max_streaks)
@@ -827,26 +780,3 @@ class StockData:
                 bbox_inches = "tight"
             )
             plt.close()
-
-def get_correlation_report(
-    close_prices: list[pd.DataFrame], 
-    max_records = 1000
-) -> CorrelationReport:
-    all_prices = close_prices[0].join(close_prices[1:], how = "outer").sort_index().iloc[-max_records:]
-    
-    corrs = all_prices.corr("pearson")
-    min_corrs = {}
-    max_corrs = {}
-
-    for symbol in corrs.columns:
-        sym_corr = corrs[symbol].sort_values()
-        min_corrs[symbol] = (sym_corr.index[0], sym_corr.iloc[0])
-        max_corrs[symbol] = (sym_corr.index[-2], sym_corr.iloc[-2])
-
-    return CorrelationReport(
-        len(all_prices),
-        all_prices.index.min().date(),
-        all_prices.index.max().date(),
-        min_corrs,
-        max_corrs
-    )
