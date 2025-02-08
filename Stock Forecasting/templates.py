@@ -36,7 +36,7 @@ def create_index(
     <td>{summary.end_date:%B %d, %Y}</td>
     <td>{summary.num_records}</td>
     <td>{summary.last_close} <span class="{change_color} metric">({summary.last_change:.2%})</span></td>
-    <td><span class="{change_color} metric">{summary.candle_streak}</span></td>
+    <td><span class="{change_color} metric">{summary.candle_streak} ({summary.curr_streak_returns:.2%})</span></td>
 </tr>'''
         )
 
@@ -202,7 +202,7 @@ def create_stock_report(
         last_candle = last_candle,
         last_candle_overall_pcnt = f"{stock_data.last_candle_overall_pcnt:.1%}",
         candle_streak = stock_data.summary.candle_streak,
-        curr_streak_returns = f"{stock_data.curr_streak_returns:.2%}",
+        curr_streak_returns = f"{stock_data.summary.curr_streak_returns:.2%}",
         streak_cont_prob = f"{stock_data.streak_cont_prob:.1%}",
         longest_candle_streak = stock_data.longest_candle_streak[0],
         longest_candle_streak_start = f"{stock_data.longest_candle_streak[1]:%B %d, %Y}",

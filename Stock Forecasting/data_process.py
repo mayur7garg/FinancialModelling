@@ -19,6 +19,7 @@ class StockSummary:
     last_close: float
     last_change: float
     candle_streak: int = 1
+    curr_streak_returns: float = 0.0
 
 @dataclass
 class PerformanceReport:
@@ -621,7 +622,7 @@ class StockData:
         self.summary.candle_streak = self.raw_data['Streak'].iloc[-1]
         si = self.raw_data['Streak Index'].iloc[-1]
         curr_si = self.raw_data.loc[self.raw_data['Streak Index'] == si, ['Prev Close', 'Close']]
-        self.curr_streak_returns = (curr_si['Close'].iloc[-1] / curr_si['Prev Close'].iloc[0]) - 1
+        self.summary.curr_streak_returns = (curr_si['Close'].iloc[-1] / curr_si['Prev Close'].iloc[0]) - 1
 
         max_streaks = self.raw_data.groupby(
             ['Streak Index', 'Is Green'], 
@@ -788,7 +789,7 @@ class StockData:
     def _save_intraday_plots(self):
         plot_data = self.raw_data[
             ["Date", "Open", "High", "Low", "Prev Close", "LTP", "Close", "VWAP"]
-        ].iloc[-PerfPeriods.MEDIUM:]
+        ].iloc[-PerfPeriods.SHORT:]
 
         with sns.axes_style('dark'):
             plt.figure(figsize = (10, 5), dpi = 125)
@@ -808,6 +809,7 @@ class StockData:
                 )
 
             plt.legend()
+            plt.xticks(rotation = 45, fontsize = 8)
             plt.xlabel("Date", fontsize = 12)
             plt.ylabel("Change from previous Close price (%)", fontsize = 12)
             plt.title(f"{self.symbol} - Metrics w.r.t. previous Close price", fontsize = 14)
@@ -833,6 +835,7 @@ class StockData:
                 )
 
             plt.legend()
+            plt.xticks(rotation = 45, fontsize = 8)
             plt.xlabel("Date", fontsize = 12)
             plt.ylabel("Change from Close price (%)", fontsize = 12)
             plt.title(f"{self.symbol} - Metrics w.r.t. Close price", fontsize = 14)
