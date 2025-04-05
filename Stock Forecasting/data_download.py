@@ -12,10 +12,12 @@ if RUN_DATE.hour >= 20:
 else:
     END_DATE = RUN_DATE.date() - timedelta(days = 1)
 
+print(f'Downloading data till {END_DATE:%d-%m-%Y}')
+
 DATA_YEARS = range(START_DATE.year, END_DATE.year + 1)
 FILENAME_PTRN = "filename=(.+)"
 HEADERS = {
-    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0',
 }
 
 def _download_hist_eq_data(
@@ -24,17 +26,24 @@ def _download_hist_eq_data(
     start_date: date, 
     end_date: date
 ):
-    response = sess.get(
-        r'https://www.nseindia.com/api/historical/cm/equity', 
-        headers = HEADERS, 
-        params = f"symbol={symbol}&series=[%22EQ%22]&from={start_date:%d-%m-%Y}&to={end_date:%d-%m-%Y}&csv=true"
+    req = sess.prepare_request(
+        requests.Request(
+            'GET',
+            r'https://www.nseindia.com/api/historical/cm/equity', 
+            headers = HEADERS, 
+            params = f"symbol={symbol}&series=[%22EQ%22]&from={start_date:%d-%m-%Y}&to={end_date:%d-%m-%Y}&csv=true",
+            auth = ('user', 'pass'),
+        )
     )
+    req.prepare_cookies(sess.cookies)
+    response = sess.send(req, allow_redirects = False)
 
     if response.status_code == 200:
         filename = re.findall(FILENAME_PTRN, response.headers['content-disposition'])[0]
         print(f"> Downloaded '{filename}' from '{response.url}'.")
         return filename, response.content.decode('utf-8')
-
+    else:
+        print(f"> Unable to get response from API. Code: {response.status_code}")
     return None, None
 
 def update_hist_eq_data(
@@ -57,7 +66,7 @@ def update_hist_eq_data(
             c_f.unlink()
 
     with requests.Session() as sess:
-        sess.get(r'https://www.nseindia.com', headers = HEADERS)
+        sess.get(f'https://www.nseindia.com/get-quotes/equity?symbol={symbol}', headers = HEADERS)
 
         for dy in DATA_YEARS:
             if dy not in completed_years:
