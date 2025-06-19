@@ -66,6 +66,7 @@ def update_hist_eq_data(
             c_f.unlink()
 
     with requests.Session() as sess:
+        sess.get(f'https://www.nseindia.com/', headers = HEADERS)
         sess.get(f'https://www.nseindia.com/get-quotes/equity?symbol={symbol}', headers = HEADERS)
 
         for dy in DATA_YEARS:
