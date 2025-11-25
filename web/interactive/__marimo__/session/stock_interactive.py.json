@@ -1,0 +1,79 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.18.0"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "48b082870eb3311463c82d74a59e2727",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='vblA-0' random-id='c71e2fb3-ea3d-6d77-a206-9e6cac3eb57f'><marimo-text data-initial-value='&quot;&quot;' data-label='null' data-placeholder='&quot;Enter symbol: &quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "c850eb41c4a53376c820aaafe2af5d86",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"hdfcsml250\">HDFCSML250</h1></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "0fa6030d7dde9f9fe2787985303e5c35",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<img src='./@file/67477-16984-uZQV3GZc.png' />"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZhOb",
+      "code_hash": "4addc2809052c64343bde9b5b153c139",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<img src='./@file/57727-16984-5z4LMaJ8.png' />"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lYXC",
+      "code_hash": null,
+      "outputs": [],
+      "console": []
+    }
+  ]
+}
