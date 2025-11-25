@@ -1,0 +1,1 @@
+import{s as o}from"./chunk-DZLz74EQ.js";import{t as e}from"./react-cj45iF1i.js";import{t as n}from"./dist-B5o2gLy7.js";var m=o(e(),1);function u(r){let t=m.useRef(r);return n(r,t.current)||(t.current=r),t.current}export{u as t};
