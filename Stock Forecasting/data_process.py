@@ -446,19 +446,20 @@ class StockData:
             
             plt.figure(figsize = (10, 5), dpi = 125)
             
-            sns.kdeplot(
+            sns.histplot(
                 data = self.raw_data.iloc[-PLOT_PERIOD:],
                 x = "VWAP",
-                weights = "Volume"
+                weights = "Volume",
+                bins = 25
             )
             plt.axvline(x = self.last_close, linestyle = "dashdot", color = "goldenrod", label = 'Last Close')
 
             plt.legend()
             plt.xlabel("VWAP", fontsize = 12)
-            plt.ylabel("Density of Volume", fontsize = 12)
-            plt.title(f"{self.symbol} - Volume density by VWAP", fontsize = 14)
+            plt.ylabel("Volume", fontsize = 12)
+            plt.title(f"{self.symbol} - Volume by VWAP", fontsize = 14)
             plt.savefig(
-                self.image_out_path.joinpath(f"{self.symbol}_Volume_density_by_VWAP.png"), 
+                self.image_out_path.joinpath(f"{self.symbol}_Volume_by_VWAP.png"), 
                 bbox_inches = "tight"
             )
             plt.close()

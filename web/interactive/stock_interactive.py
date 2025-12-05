@@ -6,13 +6,20 @@ app = marimo.App(width="full")
 
 @app.cell
 def _():
+    from pathlib import Path
+
     import marimo as mo
-    return (mo,)
+    return Path, mo
 
 
 @app.cell
-def _(mo):
-    symbol = mo.ui.text(placeholder = "Enter symbol: ")
+def _(Path, mo):
+    STOCK_SYMBOLS = [p.stem for p in Path("..", "..", "data", "NSE").iterdir() if p.is_dir()]
+    symbol = mo.ui.dropdown(
+        STOCK_SYMBOLS,
+        value = STOCK_SYMBOLS[0],
+        label = "Select symbol"
+    )
     symbol
     return (symbol,)
 
@@ -33,16 +40,15 @@ def _(mo, symbol):
 
 @app.cell
 def _(mo, symbol):
-    mo.image(src = f"../images/{symbol.value}/{symbol.value}_Volume_density_by_VWAP.png")
+    mo.image(src = f"../images/{symbol.value}/{symbol.value}_Volume_by_VWAP.png")
     return
 
 
 @app.cell
 def _():
+    # marimo export html-wasm stock_interactive.py -o . --mode run
     return
 
 
 if __name__ == "__main__":
     app.run()
-
-# marimo export html-wasm stock_interactive.py -o . --mode run
