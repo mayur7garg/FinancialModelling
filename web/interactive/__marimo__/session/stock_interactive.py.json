@@ -18,19 +18,13 @@
       "console": []
     },
     {
-      "id": "kGCH",
-      "code_hash": null,
-      "outputs": [],
-      "console": []
-    },
-    {
       "id": "MJUe",
-      "code_hash": "48b082870eb3311463c82d74a59e2727",
+      "code_hash": "f52deb66641a52f07077ec652d436542",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='MJUe-0' random-id='12c8f52b-a6c7-b39d-e425-2914d1d1e4a3'><marimo-text data-initial-value='&quot;&quot;' data-label='null' data-placeholder='&quot;Enter symbol: &quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='MJUe-0' random-id='0bdacbd0-53d1-63b3-525f-fe8060294e9e'><marimo-dropdown data-initial-value='[&quot;ADANIPOWER&quot;]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Select symbol&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;ADANIPOWER&quot;,&quot;BHARTIARTL&quot;,&quot;BSOFT&quot;,&quot;DEEPAKFERT&quot;,&quot;DLF&quot;,&quot;GOKULAGRO&quot;,&quot;GOLDBEES&quot;,&quot;HAL&quot;,&quot;HDFCBANK&quot;,&quot;HDFCSML250&quot;,&quot;ICICIBANK&quot;,&quot;INDIGO&quot;,&quot;INDIGOPNTS&quot;,&quot;INFY&quot;,&quot;ITBEES&quot;,&quot;ITC&quot;,&quot;JSWSTEEL&quot;,&quot;JUBLFOOD&quot;,&quot;JUNIORBEES&quot;,&quot;LIQUIDCASE&quot;,&quot;MARUTI&quot;,&quot;MID150BEES&quot;,&quot;MON100&quot;,&quot;NH&quot;,&quot;NIFTYBEES&quot;,&quot;PAGEIND&quot;,&quot;RBA&quot;,&quot;SILVERBEES&quot;,&quot;TANLA&quot;,&quot;TCS&quot;,&quot;TMPV&quot;,&quot;VEDL&quot;,&quot;WAAREEENER&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false'></marimo-dropdown></marimo-ui-element>"
           }
         }
       ],
@@ -43,7 +37,7 @@
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"_1\"></h1></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"adanipower\">ADANIPOWER</h1></span>"
           }
         }
       ],
@@ -51,12 +45,12 @@
     },
     {
       "id": "bkHC",
-      "code_hash": "0fa6030d7dde9f9fe2787985303e5c35",
+      "code_hash": "facd2e2b397aee41211678c8093e8fb1",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<img src='../images//_Max_Period_of_No_Return.png' />"
+            "text/html": "<img src='./@file/66078-6568-hj152XrI.png' />"
           }
         }
       ],
@@ -64,12 +58,12 @@
     },
     {
       "id": "lEQa",
-      "code_hash": "4addc2809052c64343bde9b5b153c139",
+      "code_hash": "ce0be372e418935c9deebaa737e8d9f9",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<img src='../images//_Volume_density_by_VWAP.png' />"
+            "text/html": "<img src='./@file/27364-6568-1dQTfb99.png' />"
           }
         }
       ],
@@ -77,7 +71,7 @@
     },
     {
       "id": "PKri",
-      "code_hash": null,
+      "code_hash": "b2ee72008a79ca50fc31a692ccf79001",
       "outputs": [
         {
           "type": "data",

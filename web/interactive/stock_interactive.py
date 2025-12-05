@@ -6,15 +6,13 @@ app = marimo.App(width="full")
 
 @app.cell
 def _():
-    from pathlib import Path
-
     import marimo as mo
-    return Path, mo
+    return (mo,)
 
 
 @app.cell
-def _(Path, mo):
-    STOCK_SYMBOLS = [p.stem for p in Path("..", "..", "data", "NSE").iterdir() if p.is_dir()]
+def _(mo):
+    STOCK_SYMBOLS = ['ADANIPOWER', 'BHARTIARTL', 'BSOFT', 'DEEPAKFERT', 'DLF', 'GOKULAGRO', 'GOLDBEES', 'HAL', 'HDFCBANK', 'HDFCSML250', 'ICICIBANK', 'INDIGO', 'INDIGOPNTS', 'INFY', 'ITBEES', 'ITC', 'JSWSTEEL', 'JUBLFOOD', 'JUNIORBEES', 'LIQUIDCASE', 'MARUTI', 'MID150BEES', 'MON100', 'NH', 'NIFTYBEES', 'PAGEIND', 'RBA', 'SILVERBEES', 'TANLA', 'TCS', 'TMPV', 'VEDL', 'WAAREEENER']
     symbol = mo.ui.dropdown(
         STOCK_SYMBOLS,
         value = STOCK_SYMBOLS[0],
