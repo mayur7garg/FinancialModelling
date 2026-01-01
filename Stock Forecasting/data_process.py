@@ -91,15 +91,12 @@ class StockData:
                 'chTotTradedQty', 'chTotTradedVal', 'chTotalTrades'
             ]]
             hist_df.columns = col_names
-            
+
             hist_df["Date"] = pd.to_datetime(hist_df["Date"], format = r"%d-%b-%Y")
             hist_dfs.append(hist_df)
         
         if len(hist_dfs) > 0:
-            hist_df: pd.DataFrame = hist_dfs[0]
-
-            for df in hist_dfs[1:]:
-                hist_df = hist_df.merge(df, how = "outer")
+            hist_df: pd.DataFrame = pd.concat(hist_dfs, axis = 'index', ignore_index = True)
             
             hist_df = hist_df.sort_values(
                 "Date"

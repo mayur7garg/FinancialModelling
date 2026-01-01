@@ -1,3 +1,4 @@
+import json
 import re
 import requests
 from pathlib import Path
@@ -80,12 +81,18 @@ def update_hist_eq_data(
                 )
 
                 if data is not None:
-                    if len(data) > 0:
-                        with stock_data_dir.joinpath(filename).open('w', encoding = "utf-8") as f:
-                            f.write(data)
-                            data_updated = True
-                    else:
-                        print("> Downloaded data was ignored since it was empty.")
+                    try:
+                        data = json.loads(data)
+
+                        if len(data) > 0:
+                            with stock_data_dir.joinpath(filename).open('w', encoding = "utf-8") as f:
+                                json.dump(data, f)
+                                data_updated = True
+                        else:
+                            print("> Downloaded data was ignored since it was empty.")
+                    except Exception as e:
+                        print(f"> Downloaded data was invalid. Error: {type(e)} {e}")
+
     
     print(f"> Data updated: {data_updated}")
     return data_updated
