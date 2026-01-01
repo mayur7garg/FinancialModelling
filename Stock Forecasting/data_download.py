@@ -29,17 +29,18 @@ def _download_hist_eq_data(
     req = sess.prepare_request(
         requests.Request(
             'GET',
-            r'https://www.nseindia.com/api/historical/cm/equity', 
+            r'https://www.nseindia.com/api/NextApi/apiClient/GetQuoteApi', 
             headers = HEADERS, 
-            params = f"symbol={symbol}&series=[%22EQ%22]&from={start_date:%d-%m-%Y}&to={end_date:%d-%m-%Y}&csv=true",
+            params = f"functionName=getHistoricalTradeData&symbol={symbol}&series=EQ&fromDate={start_date:%d-%m-%Y}&toDate={end_date:%d-%m-%Y}&csv=true",
             auth = ('user', 'pass'),
         )
     )
+
     req.prepare_cookies(sess.cookies)
     response = sess.send(req, allow_redirects = False)
 
     if response.status_code == 200:
-        filename = re.findall(FILENAME_PTRN, response.headers['content-disposition'])[0]
+        filename = f'{symbol}_{start_date:%d-%m-%Y}_{end_date:%d-%m-%Y}.json'
         print(f"> Downloaded '{filename}' from '{response.url}'.")
         return filename, response.content.decode('utf-8')
     else:
@@ -51,12 +52,12 @@ def update_hist_eq_data(
     stock_data_dir: Path
 ):
     stock_data_dir = stock_data_dir.joinpath(symbol)
-    csv_files = list(stock_data_dir.glob(f"*{symbol}*.csv"))
+    symbol_files = list(stock_data_dir.glob(f"*{symbol}*.json"))
     completed_years = set()
     last_date_ptrn = r"[0-9]{2}-[0-9]{2}-[0-9]{4}"
     data_updated = False
 
-    for c_f in csv_files:
+    for c_f in symbol_files:
         c_f_last_date = datetime.strptime(re.findall(last_date_ptrn, c_f.stem)[-1], "%d-%m-%Y").date()
         
         if ((c_f_last_date.day == 31) and (c_f_last_date.month == 12)) or (c_f_last_date == END_DATE):
@@ -77,8 +78,9 @@ def update_hist_eq_data(
                     date(dy, 1, 1), 
                     min(date(dy, 12, 31), END_DATE)
                 )
+
                 if data is not None:
-                    if len(data.split("\n")) > 1:
+                    if len(data) > 0:
                         with stock_data_dir.joinpath(filename).open('w', encoding = "utf-8") as f:
                             f.write(data)
                             data_updated = True

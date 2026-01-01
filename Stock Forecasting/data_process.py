@@ -75,11 +75,23 @@ class StockData:
         ) -> pd.DataFrame:
 
         hist_dfs = []
-        files = list(stock_data_dir.joinpath(self.symbol).glob(f"*{self.symbol}*.csv"))
+        files = list(stock_data_dir.joinpath(self.symbol).glob(f"*{self.symbol}*.json"))
+        col_names = [
+            "Date", "Open", "High", "Low", "Prev Close", "LTP", "Close",
+            "VWAP", "52W H", "52W L", "Volume", "Value", "Num Trades"
+        ]
 
         for f in files:
-            hist_df = pd.read_csv(f, thousands = ',')
+            hist_df = pd.read_json(f, orient = 'columns')
             hist_df.columns = [c.strip() for c in hist_df.columns]
+            hist_df = hist_df[[
+                'mtimestamp', 'chOpeningPrice', 'chTradeHighPrice', 'chTradeLowPrice',
+                'chPreviousClsPrice', 'chLastTradedPrice', 'chClosingPrice',
+                'vwap', 'ch52WeekHighPrice', 'ch52WeekLowPrice',
+                'chTotTradedQty', 'chTotTradedVal', 'chTotalTrades'
+            ]]
+            hist_df.columns = col_names
+            
             hist_df["Date"] = pd.to_datetime(hist_df["Date"], format = r"%d-%b-%Y")
             hist_dfs.append(hist_df)
         
@@ -95,17 +107,7 @@ class StockData:
                 keep = 'first'
             ).reset_index(
                 drop = True
-            ).drop(
-                labels = "series",
-                axis = "columns"
             )
-
-            col_names = [
-                "Date", "Open", "High", "Low", "Prev Close", "LTP", "Close",
-                "VWAP", "52W H", "52W L", "Volume", "Value", "Num Trades"
-            ]
-            
-            hist_df.columns = col_names
 
             stock_split_file = company_data_dir.joinpath("StockSplit", f"{self.symbol}.csv")
 
