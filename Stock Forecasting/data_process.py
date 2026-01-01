@@ -653,6 +653,17 @@ class StockData:
                 f'<li>This stock is on a <span class="metric">{self.summary.candle_streak}</span> day <span class="metric color-{last_candle.lower()}">{last_candle}</span> candle streak on a close by close basis.</li>'
             )
 
+        consolidation = ((self.last_close - self.raw_data['Close']).abs() / self.last_close) < 0.1
+        
+        if consolidation.iloc[-1]:
+            consolidation_streak = (consolidation != consolidation.shift(1)).cumsum()
+            consolidation_length = (consolidation_streak == consolidation_streak.iloc[-1]).sum()
+            
+            if consolidation_length > PerfPeriods.MEDIUM:
+                self.highlights.append(
+                    f'<li>This stock has been consolidating within <span class="metric">10%</span> of its last close price for <span class="metric">{consolidation_length}</span> trading days.</li>'
+                )
+
         self._save_streak_plots(max_streaks)
     
     def _save_streak_plots(self, max_streaks: pd.DataFrame):
