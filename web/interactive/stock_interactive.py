@@ -1,18 +1,21 @@
 import marimo
 
-__generated_with = "0.18.0"
+__generated_with = "0.23.2"
 app = marimo.App(width="full")
 
 
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
 @app.cell
 def _(mo):
-    STOCK_SYMBOLS = ['ADANIPOWER', 'BHARTIARTL', 'BSOFT', 'DEEPAKFERT', 'DLF', 'GOKULAGRO', 'GOLDBEES', 'HAL', 'HDFCBANK', 'HDFCSML250', 'ICICIBANK', 'INDIGO', 'INDIGOPNTS', 'INFY', 'ITBEES', 'ITC', 'JSWSTEEL', 'JUBLFOOD', 'JUNIORBEES', 'LIQUIDCASE', 'MARUTI', 'MID150BEES', 'MON100', 'NH', 'NIFTYBEES', 'PAGEIND', 'RBA', 'SILVERBEES', 'TANLA', 'TCS', 'TMPV', 'VEDL', 'WAAREEENER']
+    STOCK_SYMBOLS = [
+        'ADANIPOWER', 'BHARTIARTL', 'BSOFT', 'DEEPAKFERT', 'DLF', 'GOKULAGRO', 'GOLDBEES', 'HAL', 'HDFCBANK', 'HDFCSML250', 'ICICIBANK', 'INDIGO', 'INDIGOPNTS', 'INFY', 'IRCTC', 'ITBEES', 'ITC', 'JSWSTEEL', 'JUBLFOOD', 'JUNIORBEES', 'LIQUIDCASE', 'MARUTI', 'MID150BEES', 'MON100', 'NH', 'NIFTYBEES', 'PAGEIND', 'RBA', 'SILVERBEES', 'TANLA', 'TCS', 'TMPV', 'VEDL', 'WAAREEENER'
+    ]
     symbol = mo.ui.dropdown(
         STOCK_SYMBOLS,
         value = STOCK_SYMBOLS[0],
